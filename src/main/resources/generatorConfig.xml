@@ -40,6 +40,14 @@
             <property name="enableSubPackages" value="false" />
         </javaClientGenerator>
 
-        <table schema="COS" tableName="student" domainObjectName="Student"/>
+        <table schema="cos" tableName="application" domainObjectName="Application"/>
+        <table schema="cos" tableName="atm_tran" domainObjectName="AtmTran"/>
+        <table schema="cos" tableName="department" domainObjectName="Department"/>
+        <table schema="cos" tableName="log" domainObjectName="Log"/>
+        <table schema="cos" tableName="office" domainObjectName="Office"/>
+        <table schema="cos" tableName="position" domainObjectName="Position"/>
+        <table schema="cos" tableName="rv_flow" domainObjectName="RvFlow"/>
+        <table schema="cos" tableName="rv_object" domainObjectName="RvObject"/>
+        <table schema="cos" tableName="staff" domainObjectName="Staff"/>
     </context>
 </generatorConfiguration>

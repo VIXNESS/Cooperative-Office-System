@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiangtao.cos.dao.RvFlowMapper">
+  <resultMap id="BaseResultMap" type="com.jiangtao.cos.pojo.RvFlowKey">
+    <id column="robj_pk" jdbcType="CHAR" property="robjPk" />
+    <id column="rboj_serial" jdbcType="TINYINT" property="rbojSerial" />
+    <id column="at_pk" jdbcType="CHAR" property="atPk" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    robj_pk, rboj_serial, at_pk
+  </sql>
+  <select id="selectByExample" parameterType="com.jiangtao.cos.pojo.RvFlowCriteria" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from rv_flow
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="com.jiangtao.cos.pojo.RvFlowKey">
+    delete from rv_flow
+    where robj_pk = #{robjPk,jdbcType=CHAR}
+      and rboj_serial = #{rbojSerial,jdbcType=TINYINT}
+      and at_pk = #{atPk,jdbcType=CHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.jiangtao.cos.pojo.RvFlowCriteria">
+    delete from rv_flow
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.jiangtao.cos.pojo.RvFlowKey">
+    insert into rv_flow (robj_pk, rboj_serial, at_pk
+      )
+    values (#{robjPk,jdbcType=CHAR}, #{rbojSerial,jdbcType=TINYINT}, #{atPk,jdbcType=CHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.jiangtao.cos.pojo.RvFlowKey">
+    insert into rv_flow
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="robjPk != null">
+        robj_pk,
+      </if>
+      <if test="rbojSerial != null">
+        rboj_serial,
+      </if>
+      <if test="atPk != null">
+        at_pk,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="robjPk != null">
+        #{robjPk,jdbcType=CHAR},
+      </if>
+      <if test="rbojSerial != null">
+        #{rbojSerial,jdbcType=TINYINT},
+      </if>
+      <if test="atPk != null">
+        #{atPk,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.jiangtao.cos.pojo.RvFlowCriteria" resultType="java.lang.Long">
+    select count(*) from rv_flow
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update rv_flow
+    <set>
+      <if test="record.robjPk != null">
+        robj_pk = #{record.robjPk,jdbcType=CHAR},
+      </if>
+      <if test="record.rbojSerial != null">
+        rboj_serial = #{record.rbojSerial,jdbcType=TINYINT},
+      </if>
+      <if test="record.atPk != null">
+        at_pk = #{record.atPk,jdbcType=CHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update rv_flow
+    set robj_pk = #{record.robjPk,jdbcType=CHAR},
+      rboj_serial = #{record.rbojSerial,jdbcType=TINYINT},
+      at_pk = #{record.atPk,jdbcType=CHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <select id="selectByExampleWithRowbounds" parameterType="com.jiangtao.cos.pojo.RvFlowCriteria" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from rv_flow
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <cache />
+</mapper>

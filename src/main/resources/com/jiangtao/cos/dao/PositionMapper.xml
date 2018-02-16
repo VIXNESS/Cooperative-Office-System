@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiangtao.cos.dao.PositionMapper">
+  <resultMap id="BaseResultMap" type="com.jiangtao.cos.pojo.Position">
+    <id column="posi_pk" jdbcType="TINYINT" property="posiPk" />
+    <result column="posi_name" jdbcType="VARCHAR" property="posiName" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    posi_pk, posi_name
+  </sql>
+  <select id="selectByExample" parameterType="com.jiangtao.cos.pojo.PositionCriteria" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from position
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Byte" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from position
+    where posi_pk = #{posiPk,jdbcType=TINYINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Byte">
+    delete from position
+    where posi_pk = #{posiPk,jdbcType=TINYINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.jiangtao.cos.pojo.PositionCriteria">
+    delete from position
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.jiangtao.cos.pojo.Position">
+    insert into position (posi_pk, posi_name)
+    values (#{posiPk,jdbcType=TINYINT}, #{posiName,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.jiangtao.cos.pojo.Position">
+    insert into position
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="posiPk != null">
+        posi_pk,
+      </if>
+      <if test="posiName != null">
+        posi_name,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="posiPk != null">
+        #{posiPk,jdbcType=TINYINT},
+      </if>
+      <if test="posiName != null">
+        #{posiName,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.jiangtao.cos.pojo.PositionCriteria" resultType="java.lang.Long">
+    select count(*) from position
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update position
+    <set>
+      <if test="record.posiPk != null">
+        posi_pk = #{record.posiPk,jdbcType=TINYINT},
+      </if>
+      <if test="record.posiName != null">
+        posi_name = #{record.posiName,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update position
+    set posi_pk = #{record.posiPk,jdbcType=TINYINT},
+      posi_name = #{record.posiName,jdbcType=VARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jiangtao.cos.pojo.Position">
+    update position
+    <set>
+      <if test="posiName != null">
+        posi_name = #{posiName,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where posi_pk = #{posiPk,jdbcType=TINYINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jiangtao.cos.pojo.Position">
+    update position
+    set posi_name = #{posiName,jdbcType=VARCHAR}
+    where posi_pk = #{posiPk,jdbcType=TINYINT}
+  </update>
+  <select id="selectByExampleWithRowbounds" parameterType="com.jiangtao.cos.pojo.PositionCriteria" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from position
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <cache />
+</mapper>
