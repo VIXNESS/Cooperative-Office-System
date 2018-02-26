@@ -3,9 +3,14 @@ package com.jiangtao.cos.dao;
 import com.jiangtao.cos.pojo.Application;
 import com.jiangtao.cos.pojo.ApplicationCriteria;
 import java.util.List;
+
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
+import org.springframework.stereotype.Repository;
 
+@Mapper
+@Repository
 public interface ApplicationMapper {
     long countByExample(ApplicationCriteria example);
 

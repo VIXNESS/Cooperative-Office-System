@@ -3,9 +3,14 @@ package com.jiangtao.cos.dao;
 import com.jiangtao.cos.pojo.Department;
 import com.jiangtao.cos.pojo.DepartmentCriteria;
 import java.util.List;
+
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
+import org.springframework.stereotype.Repository;
 
+@Mapper
+@Repository
 public interface DepartmentMapper {
     long countByExample(DepartmentCriteria example);
 
