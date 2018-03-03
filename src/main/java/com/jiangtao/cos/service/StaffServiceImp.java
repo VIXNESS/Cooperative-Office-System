@@ -1,25 +1,70 @@
 package com.jiangtao.cos.service;
 
-import com.jiangtao.cos.dao.StaffMapper;
 import com.jiangtao.cos.pojo.Staff;
 import com.jiangtao.cos.pojo.StaffCriteria;
-import com.jiangtao.cos.pojo.Student;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
-public class StaffServiceImp implements StaffService{
-    @Autowired
-    StaffMapper staffMapper;
+public class StaffServiceImp implements StaffService {
     @Override
-    public boolean addStaff(Staff staff) {
-        staffMapper.insertSelective(staff);
-        return true;
+    public List<Staff> get(StaffCriteria staffCriteria) throws Exception {
+        return null;
     }
 
     @Override
-    public Staff findStaffById(String id) {
-        StaffCriteria staffCriteria = new StaffCriteria();
-        return staffMapper.selectByPrimaryKey(id);
+    public List<Staff> get(StaffCriteria staffCriteria, int page, int row) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Staff getByPk(StaffCriteria staffCriteria) throws Exception {
+        return null;
+    }
+
+    @Override
+    public int insert(List<Staff> staffList) throws Exception {
+        return 0;
+    }
+
+    @Override
+    public int insert(Staff staff) throws Exception {
+        return 0;
+    }
+
+    @Override
+    public int insert(StaffCriteria staffCriteria) throws Exception {
+        return 0;
+    }
+
+    @Override
+    public int delete(Staff staff) throws Exception {
+        return 0;
+    }
+
+    @Override
+    public int delete(StaffCriteria staffCriteria) throws Exception {
+        return 0;
+    }
+
+    @Override
+    public int delete(List<Staff> staffList) throws Exception {
+        return 0;
+    }
+
+    @Override
+    public int update(Staff staff) throws Exception {
+        return 0;
+    }
+
+    @Override
+    public int update(List<Staff> staffList) throws Exception {
+        return 0;
+    }
+
+    @Override
+    public int update(StaffCriteria staffCriteria) throws Exception {
+        return 0;
     }
 }
