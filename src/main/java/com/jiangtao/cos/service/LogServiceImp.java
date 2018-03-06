@@ -1,65 +1,53 @@
 package com.jiangtao.cos.service;
 
+import com.github.pagehelper.PageHelper;
+import com.jiangtao.cos.dao.LogMapper;
 import com.jiangtao.cos.pojo.Log;
 import com.jiangtao.cos.pojo.LogCriteria;
+import com.jiangtao.cos.pojo.LogKey;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class LogServiceImp implements LogService {
+    @Autowired
+    LogMapper logMapper;
+
     @Override
     public List<Log> get(LogCriteria logCriteria) throws Exception {
-        return null;
+        return logMapper.selectByExample(logCriteria);
     }
 
     @Override
     public List<Log> get(LogCriteria logCriteria, int page, int row) throws Exception {
-        return null;
+        PageHelper.startPage(page,row);
+        return logMapper.selectByExample(logCriteria);
     }
 
     @Override
-    public Log getByPk(LogCriteria logCriteria) throws Exception {
-        return null;
-    }
-
-    @Override
-    public int insert(List<Log> logList) throws Exception {
-        return 0;
+    public Log getByPk(LogKey logKey) throws Exception {
+        return logMapper.selectByPrimaryKey(logKey);
     }
 
     @Override
     public int insert(Log log) throws Exception {
-        return 0;
+        return logMapper.insertSelective(log);
     }
 
     @Override
     public int delete(LogCriteria logCriteria) throws Exception {
-        return 0;
+        return logMapper.deleteByExample(logCriteria);
     }
 
     @Override
-    public int delete(List<Log> logList) throws Exception {
-        return 0;
-    }
-
-    @Override
-    public int delete(Log log) throws Exception {
-        return 0;
-    }
-
-    @Override
-    public int update(List<Log> logList) throws Exception {
-        return 0;
+    public int delete(LogKey logKey) throws Exception {
+        return logMapper.deleteByPrimaryKey(logKey);
     }
 
     @Override
     public int update(Log log) throws Exception {
-        return 0;
-    }
-
-    @Override
-    public int update(LogCriteria logCriteria) throws Exception {
-        return 0;
+        return logMapper.updateByPrimaryKey(log);
     }
 }

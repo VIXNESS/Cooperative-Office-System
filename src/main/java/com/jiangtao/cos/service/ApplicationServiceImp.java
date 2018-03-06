@@ -1,5 +1,6 @@
 package com.jiangtao.cos.service;
 
+import com.github.pagehelper.PageHelper;
 import com.jiangtao.cos.dao.ApplicationMapper;
 import com.jiangtao.cos.pojo.Application;
 import com.jiangtao.cos.pojo.ApplicationCriteria;
@@ -15,56 +16,38 @@ public class ApplicationServiceImp implements ApplicationService {
 
     @Override
     public List<Application> get(ApplicationCriteria applicationCriteria) throws Exception {
-        return null;
+        return applicationMapper.selectByExample(applicationCriteria);
     }
 
     @Override
     public List<Application> get(ApplicationCriteria applicationCriteria, int page, int row) throws Exception {
-        return null;
+        PageHelper.startPage(page,row);
+        return applicationMapper.selectByExample(applicationCriteria);
     }
 
     @Override
     public Application getByPk(String pk) throws Exception {
-        return null;
+        return applicationMapper.selectByPrimaryKey(pk);
     }
 
     @Override
     public int insert(Application application) throws Exception {
-        return 0;
-    }
-
-    @Override
-    public int insert(List<Application> applicationList) throws Exception {
-        return 0;
+        return applicationMapper.insert(application);
     }
 
     @Override
     public int delete(String pk) throws Exception {
-        return 0;
+        return applicationMapper.deleteByPrimaryKey(pk);
     }
 
     @Override
     public int delete(ApplicationCriteria applicationCriteria) throws Exception {
-        return 0;
-    }
-
-    @Override
-    public int delete(List<Application> applicationList) throws Exception {
-        return 0;
+        return applicationMapper.deleteByExample(applicationCriteria);
     }
 
     @Override
     public int update(Application application) throws Exception {
-        return 0;
+        return applicationMapper.updateByPrimaryKeySelective(application);
     }
 
-    @Override
-    public int update(List<Application> applicationList) throws Exception {
-        return 0;
-    }
-
-    @Override
-    public int update(ApplicationCriteria applicationCriteria) throws Exception {
-        return 0;
-    }
 }

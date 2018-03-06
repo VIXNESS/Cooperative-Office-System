@@ -8,13 +8,9 @@ import java.util.List;
 public interface PositionService {
     List<Position> get(PositionCriteria positionCriteria);
     List<Position> get(PositionCriteria positionCriteria, int page, int row);
-    Position getByPk(PositionCriteria positionCriteria);
-    int insert(List<Position> positionList);
+    Position getByPk(Byte pk);
     int insert(Position position);
-    int delete(List<Position> positionList);
     int delete(PositionCriteria positionCriteria);
-    int delete(Position position);
+    int delete(Byte pk);
     int update(Position position);
-    int update(PositionCriteria positionCriteria);
-    int update(List<Position> positionList);
 }

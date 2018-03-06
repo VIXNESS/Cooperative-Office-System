@@ -26,9 +26,19 @@
             </el-col>
         </el-row>
     </div>
-    <form method="get" action="/app/test">
-        <input type="text" name="id">
-        <input type="submit">
+    <form method="post" action="/staff/test">
+        name:<br>
+        <input type="text" name="name"><br>
+        email:<br>
+        <input type="email" name="email"><br>
+        birthday:<br>
+        <input name="birthday" type="date"><br>
+        phone:<br>
+        <input name="phone" type="number"><br>
+        gender:<br/>
+        <input name="gender" type="radio" value="male">male<br>
+        <input name="gender" type="radio"   value="female">female<br>
+        <input type="submit" value="add">
     </form>
 </body>
 <link rel="stylesheet" href="css/index.css">

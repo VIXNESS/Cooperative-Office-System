@@ -2,9 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.jiangtao.cos.dao.OfficeMapper">
   <resultMap id="BaseResultMap" type="com.jiangtao.cos.pojo.Office">
-    <result column="staff" jdbcType="CHAR" property="staff" />
-    <result column="department" jdbcType="CHAR" property="department" />
-    <result column="posi" jdbcType="TINYINT" property="posi" />
+    <id column="staff" jdbcType="CHAR" property="staff" />
+    <id column="department" jdbcType="CHAR" property="department" />
+    <id column="posi" jdbcType="TINYINT" property="posi" />
     <result column="init_date" jdbcType="DATE" property="initDate" />
     <result column="expired_date" jdbcType="DATE" property="expiredDate" />
   </resultMap>
@@ -83,6 +83,20 @@
       order by ${orderByClause}
     </if>
   </select>
+  <select id="selectByPrimaryKey" parameterType="com.jiangtao.cos.pojo.OfficeKey" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from office
+    where staff = #{staff,jdbcType=CHAR}
+      and department = #{department,jdbcType=CHAR}
+      and posi = #{posi,jdbcType=TINYINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="com.jiangtao.cos.pojo.OfficeKey">
+    delete from office
+    where staff = #{staff,jdbcType=CHAR}
+      and department = #{department,jdbcType=CHAR}
+      and posi = #{posi,jdbcType=TINYINT}
+  </delete>
   <delete id="deleteByExample" parameterType="com.jiangtao.cos.pojo.OfficeCriteria">
     delete from office
     <if test="_parameter != null">
@@ -171,6 +185,28 @@
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jiangtao.cos.pojo.Office">
+    update office
+    <set>
+      <if test="initDate != null">
+        init_date = #{initDate,jdbcType=DATE},
+      </if>
+      <if test="expiredDate != null">
+        expired_date = #{expiredDate,jdbcType=DATE},
+      </if>
+    </set>
+    where staff = #{staff,jdbcType=CHAR}
+      and department = #{department,jdbcType=CHAR}
+      and posi = #{posi,jdbcType=TINYINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jiangtao.cos.pojo.Office">
+    update office
+    set init_date = #{initDate,jdbcType=DATE},
+      expired_date = #{expiredDate,jdbcType=DATE}
+    where staff = #{staff,jdbcType=CHAR}
+      and department = #{department,jdbcType=CHAR}
+      and posi = #{posi,jdbcType=TINYINT}
   </update>
   <select id="selectByExampleWithRowbounds" parameterType="com.jiangtao.cos.pojo.OfficeCriteria" resultMap="BaseResultMap">
     select

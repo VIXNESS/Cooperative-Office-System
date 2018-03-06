@@ -16,6 +16,8 @@ public interface DepartmentMapper {
 
     int deleteByExample(DepartmentCriteria example);
 
+    int deleteByPrimaryKey(String id);
+
     int insert(Department record);
 
     int insertSelective(Department record);
@@ -24,7 +26,13 @@ public interface DepartmentMapper {
 
     List<Department> selectByExample(DepartmentCriteria example);
 
+    Department selectByPrimaryKey(String id);
+
     int updateByExampleSelective(@Param("record") Department record, @Param("example") DepartmentCriteria example);
 
     int updateByExample(@Param("record") Department record, @Param("example") DepartmentCriteria example);
+
+    int updateByPrimaryKeySelective(Department record);
+
+    int updateByPrimaryKey(Department record);
 }

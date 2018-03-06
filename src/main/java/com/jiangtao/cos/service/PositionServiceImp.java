@@ -1,65 +1,54 @@
 package com.jiangtao.cos.service;
 
+import com.github.pagehelper.PageHelper;
+import com.jiangtao.cos.dao.PositionMapper;
 import com.jiangtao.cos.pojo.Position;
 import com.jiangtao.cos.pojo.PositionCriteria;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class PositionServiceImp implements PositionService {
+    @Autowired
+    PositionMapper positionMapper;
     @Override
     public List<Position> get(PositionCriteria positionCriteria) {
-        return null;
+        return positionMapper.selectByExample(positionCriteria);
     }
 
     @Override
     public List<Position> get(PositionCriteria positionCriteria, int page, int row) {
-        return null;
+        PageHelper.startPage(page,row);
+        return positionMapper.selectByExample(positionCriteria);
     }
 
     @Override
-    public Position getByPk(PositionCriteria positionCriteria) {
-        return null;
-    }
-
-    @Override
-    public int insert(List<Position> positionList) {
-        return 0;
+    public Position getByPk(Byte pk) {
+        return positionMapper.selectByPrimaryKey(pk);
     }
 
     @Override
     public int insert(Position position) {
-        return 0;
-    }
-
-    @Override
-    public int delete(List<Position> positionList) {
-        return 0;
+        return positionMapper.insert(position);
     }
 
     @Override
     public int delete(PositionCriteria positionCriteria) {
+        //TODO
         return 0;
     }
 
     @Override
-    public int delete(Position position) {
+    public int delete(Byte pk) {
+        //TODO
         return 0;
     }
 
     @Override
     public int update(Position position) {
-        return 0;
-    }
-
-    @Override
-    public int update(PositionCriteria positionCriteria) {
-        return 0;
-    }
-
-    @Override
-    public int update(List<Position> positionList) {
+        //TODO
         return 0;
     }
 }

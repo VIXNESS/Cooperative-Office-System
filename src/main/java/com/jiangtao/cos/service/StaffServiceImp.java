@@ -1,70 +1,75 @@
 package com.jiangtao.cos.service;
 
+import com.github.pagehelper.PageHelper;
+import com.jiangtao.cos.dao.StaffMapper;
 import com.jiangtao.cos.pojo.Staff;
 import com.jiangtao.cos.pojo.StaffCriteria;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class StaffServiceImp implements StaffService {
+
+    @Autowired
+    StaffMapper staffMapper;
+
     @Override
     public List<Staff> get(StaffCriteria staffCriteria) throws Exception {
-        return null;
+        return staffMapper.selectByExample(staffCriteria);
     }
 
     @Override
     public List<Staff> get(StaffCriteria staffCriteria, int page, int row) throws Exception {
-        return null;
+        PageHelper.startPage(page,row);
+        return staffMapper.selectByExample(staffCriteria);
     }
 
     @Override
-    public Staff getByPk(StaffCriteria staffCriteria) throws Exception {
-        return null;
+    public Staff getByPk(String pk) throws Exception {
+        return staffMapper.selectByPrimaryKey(pk);
     }
 
     @Override
     public int insert(List<Staff> staffList) throws Exception {
-        return 0;
+        if(staffList == null) return 0;
+        int flag = 0;
+        for(Staff s:staffList){
+            flag *= insert(s);
+        }
+        return flag;
     }
 
     @Override
     public int insert(Staff staff) throws Exception {
-        return 0;
+        return staffMapper.insertSelective(staff);
     }
 
-    @Override
-    public int insert(StaffCriteria staffCriteria) throws Exception {
-        return 0;
-    }
 
     @Override
-    public int delete(Staff staff) throws Exception {
-        return 0;
+    public int delete(String staffPk) throws Exception {
+        return staffMapper.deleteByPrimaryKey(staffPk);
     }
 
     @Override
     public int delete(StaffCriteria staffCriteria) throws Exception {
-        return 0;
+        return staffMapper.deleteByExample(staffCriteria);
     }
 
     @Override
     public int delete(List<Staff> staffList) throws Exception {
-        return 0;
+        if(staffList == null) return 0;
+        int flag = 0;
+        for(Staff staff:staffList){
+            flag *= staffMapper.deleteByPrimaryKey(staff.getId());
+        }
+        return flag;
     }
 
     @Override
     public int update(Staff staff) throws Exception {
-        return 0;
+        return staffMapper.updateByPrimaryKeySelective(staff);
     }
 
-    @Override
-    public int update(List<Staff> staffList) throws Exception {
-        return 0;
-    }
-
-    @Override
-    public int update(StaffCriteria staffCriteria) throws Exception {
-        return 0;
-    }
 }
