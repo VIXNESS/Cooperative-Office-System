@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface AtmTranService {
     List<AtmTran> get(AtmTranCriteria atmTranCriteria)throws Exception;
-    List<AtmTran> get(AtmTranCriteria atmTranCriteria,int page,int row)throws Exception;
+    List<AtmTran> get(AtmTranCriteria atmTranCriteria, int page, int row)throws Exception;
     AtmTran getByPk(String pk)throws Exception;
     int insert(AtmTran atmTran)throws Exception;
     int delete(String pk)throws Exception;

@@ -26,20 +26,11 @@
             </el-col>
         </el-row>
     </div>
-    <form method="post" action="/staff/test">
-        name:<br>
-        <input type="text" name="name"><br>
-        email:<br>
-        <input type="email" name="email"><br>
-        birthday:<br>
-        <input name="birthday" type="date"><br>
-        phone:<br>
-        <input name="phone" type="number"><br>
-        gender:<br/>
-        <input name="gender" type="radio" value="male">male<br>
-        <input name="gender" type="radio"   value="female">female<br>
-        <input type="submit" value="add">
-    </form>
+<form action="/staff/login" method="post">
+    <input type="text" name="uid"><br>
+    <input type="password" name="password"><br>
+    <input type="submit">
+</form>
 </body>
 <link rel="stylesheet" href="css/index.css">
 <script src="js/index.js"></script>

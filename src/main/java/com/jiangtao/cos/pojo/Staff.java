@@ -18,6 +18,8 @@ public class Staff implements Serializable {
 
     private Byte status;
 
+    private String password;
+
     private static final long serialVersionUID = 1L;
 
     public String getId() {
@@ -76,6 +78,14 @@ public class Staff implements Serializable {
         this.status = status;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password == null ? null : password.trim();
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
@@ -89,6 +99,7 @@ public class Staff implements Serializable {
         sb.append(", phone=").append(phone);
         sb.append(", gender=").append(gender);
         sb.append(", status=").append(status);
+        sb.append(", password=").append(password);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

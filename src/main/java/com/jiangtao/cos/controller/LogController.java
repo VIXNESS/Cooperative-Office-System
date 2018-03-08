@@ -14,7 +14,7 @@ public class LogController {
     @Autowired
     private LogService logService;
     public List<Log> getLogsByStaff(){
-        //todo
+        
         return null;
     }
 

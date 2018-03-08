@@ -9,6 +9,7 @@
     <result column="phone" jdbcType="VARCHAR" property="phone" />
     <result column="gender" jdbcType="BIT" property="gender" />
     <result column="status" jdbcType="TINYINT" property="status" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -69,7 +70,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, name, Email, birthday, phone, gender, status
+    id, name, Email, birthday, phone, gender, status, password
   </sql>
   <select id="selectByExample" parameterType="com.jiangtao.cos.pojo.StaffCriteria" resultMap="BaseResultMap">
     select
@@ -103,11 +104,11 @@
   </delete>
   <insert id="insert" parameterType="com.jiangtao.cos.pojo.Staff">
     insert into staff (id, name, Email, 
-      birthday, phone, gender, status
-      )
+      birthday, phone, gender, status, 
+      password)
     values (#{id,jdbcType=CHAR}, #{name,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, 
-      #{birthday,jdbcType=DATE}, #{phone,jdbcType=VARCHAR}, #{gender,jdbcType=BIT}, #{status,jdbcType=TINYINT}
-      )
+      #{birthday,jdbcType=DATE}, #{phone,jdbcType=VARCHAR}, #{gender,jdbcType=BIT}, #{status,jdbcType=TINYINT}, 
+      #{password,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.jiangtao.cos.pojo.Staff">
     insert into staff
@@ -133,6 +134,9 @@
       <if test="status != null">
         status,
       </if>
+      <if test="password != null">
+        password,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -155,6 +159,9 @@
       </if>
       <if test="status != null">
         #{status,jdbcType=TINYINT},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -188,6 +195,9 @@
       <if test="record.status != null">
         status = #{record.status,jdbcType=TINYINT},
       </if>
+      <if test="record.password != null">
+        password = #{record.password,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -201,7 +211,8 @@
       birthday = #{record.birthday,jdbcType=DATE},
       phone = #{record.phone,jdbcType=VARCHAR},
       gender = #{record.gender,jdbcType=BIT},
-      status = #{record.status,jdbcType=TINYINT}
+      status = #{record.status,jdbcType=TINYINT},
+      password = #{record.password,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -227,6 +238,9 @@
       <if test="status != null">
         status = #{status,jdbcType=TINYINT},
       </if>
+      <if test="password != null">
+        password = #{password,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=CHAR}
   </update>
@@ -237,7 +251,8 @@
       birthday = #{birthday,jdbcType=DATE},
       phone = #{phone,jdbcType=VARCHAR},
       gender = #{gender,jdbcType=BIT},
-      status = #{status,jdbcType=TINYINT}
+      status = #{status,jdbcType=TINYINT},
+      password = #{password,jdbcType=VARCHAR}
     where id = #{id,jdbcType=CHAR}
   </update>
   <select id="selectByExampleWithRowbounds" parameterType="com.jiangtao.cos.pojo.StaffCriteria" resultMap="BaseResultMap">
