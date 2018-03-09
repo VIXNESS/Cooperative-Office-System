@@ -63,7 +63,6 @@ public class ApplicationController {
     public @ResponseBody
     Callable<List<Application>> getApplicationByReviewer(HttpSession session, int page, int row){
         String uid = (String) session.getAttribute("currentUser");
-        System.out.println("UID:                                :" + uid);//mark
         return new Callable<List<Application>>() {
             @Override
             public List<Application> call() throws Exception {
@@ -99,7 +98,7 @@ public class ApplicationController {
 
     @RequestMapping("add")
     public @ResponseBody
-    Callable<String> addApplication(String rv,String comment,HttpSession session){
+    Callable<String> addApplication(String rv,String comment,HttpSession session)throws Exception{
         return new Callable<String>() {
             @Override
             public String call() throws Exception {
@@ -120,12 +119,12 @@ public class ApplicationController {
                 }
                 return "true";
             }
-        }
+        };
     }
 
     @RequestMapping("upc")
     public @ResponseBody
-    Callable<String> updateComment(String ap,String comment){
+    Callable<String> updateComment(String ap,String comment)throws Exception{
         return new Callable<String>() {
             @Override
             public String call() throws Exception {
@@ -139,7 +138,7 @@ public class ApplicationController {
 
     @RequestMapping("ups")
     public @ResponseBody
-    Callable<String> updateStat(String pk,int stat){
+    Callable<String> updateStat(String pk,int stat)throws Exception{
         return new Callable<String>() {
             @Override
             public String call() throws Exception {
@@ -152,7 +151,7 @@ public class ApplicationController {
     }
     @RequestMapping("del")
     public @ResponseBody
-    Callable<String> deleteApplication(String pk){
+    Callable<String> deleteApplication(String pk)throws Exception{
         return new Callable<String>() {
             @Override
             public String call() throws Exception {

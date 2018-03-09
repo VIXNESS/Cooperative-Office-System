@@ -1,76 +1,54 @@
 package com.jiangtao.cos.service;
 
+import com.github.pagehelper.PageHelper;
+import com.jiangtao.cos.dao.RvFlowMapper;
+import com.jiangtao.cos.dao.RvObjectMapper;
 import com.jiangtao.cos.pojo.RvObject;
 import com.jiangtao.cos.pojo.RvObjectCriteria;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class RvObjectServiceImp implements RvObjectService {
+
+    @Autowired
+    RvObjectMapper rvObjectMapper;
+
     @Override
     public List<RvObject> get(RvObjectCriteria rvObjectCriteria) throws Exception {
-        //TODO
-        return null;
+        return rvObjectMapper.selectByExample(rvObjectCriteria);
     }
 
     @Override
     public List<RvObject> get(RvObjectCriteria rvObjectCriteria, int page, int row) throws Exception {
-        //TODO
-        return null;
+        PageHelper.startPage(page,row);
+        return rvObjectMapper.selectByExample(rvObjectCriteria);
     }
 
     @Override
-    public RvObject getByPk(RvObjectCriteria rvObjectCriteria) throws Exception {
-        //TODO
-        return null;
-    }
-
-    @Override
-    public int insert(List<RvObject> rvObjectList) throws Exception {
-        //TODO
-        return 0;
+    public RvObject getByPk(String pk) throws Exception {
+        return rvObjectMapper.selectByPrimaryKey(pk);
     }
 
     @Override
     public int insert(RvObject rvObject) throws Exception {
-        //TODO
-        return 0;
+        return rvObjectMapper.insert(rvObject);
     }
 
     @Override
     public int delete(RvObjectCriteria rvObjectCriteria) throws Exception {
-        //TODO
-        return 0;
+        return rvObjectMapper.deleteByExample(rvObjectCriteria);
     }
 
     @Override
-    public int delete(List<RvObject> rvObjectList) throws Exception {
-        //TODO
-        return 0;
-    }
-
-    @Override
-    public int delete(RvObject rvObject) throws Exception {
-        //TODO
-        return 0;
+    public int delete(String pk) throws Exception {
+        return rvObjectMapper.deleteByPrimaryKey(pk);
     }
 
     @Override
     public int update(RvObject rvObject) throws Exception {
-        //TODO
-        return 0;
-    }
-
-    @Override
-    public int update(List<RvObject> rvObjectList) throws Exception {
-        //TODO
-        return 0;
-    }
-
-    @Override
-    public int update(RvObjectCriteria rvObjectCriteria) throws Exception {
-        //TODO
-        return 0;
+        return rvObjectMapper.updateByPrimaryKeySelective(rvObject);
     }
 }
