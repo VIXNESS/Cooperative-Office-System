@@ -31,7 +31,7 @@ public class LogController {
         };
     }
 
-    public Callable<List<Log>> getLogsByDate(String date,int page,int row) throws ParseException {
+    public Callable<List<Log>> getLogsByDate(String date, int page, int row) throws ParseException {
         LogCriteria logCriteria = new LogCriteria();
         logCriteria.or().andLogDateEqualTo(new SimpleDateFormat("yyyy-mm-dd").parse(date));
         return new Callable<List<Log>>() {

@@ -13,4 +13,9 @@ public class TestController {
         if(a == null) return "-1";
         return Integer.toString(a);
     }
+    @RequestMapping("bar")
+    public @ResponseBody
+    String test(){
+        return Integer.toString(100);
+    }
 }

@@ -445,63 +445,73 @@ public class ApplicationCriteria {
             return (Criteria) this;
         }
 
-        public Criteria andApStatIsNull() {
-            addCriterion("ap_stat is null");
+        public Criteria andPtrIsNull() {
+            addCriterion("ptr is null");
             return (Criteria) this;
         }
 
-        public Criteria andApStatIsNotNull() {
-            addCriterion("ap_stat is not null");
+        public Criteria andPtrIsNotNull() {
+            addCriterion("ptr is not null");
             return (Criteria) this;
         }
 
-        public Criteria andApStatEqualTo(Byte value) {
-            addCriterion("ap_stat =", value, "apStat");
+        public Criteria andPtrEqualTo(String value) {
+            addCriterion("ptr =", value, "ptr");
             return (Criteria) this;
         }
 
-        public Criteria andApStatNotEqualTo(Byte value) {
-            addCriterion("ap_stat <>", value, "apStat");
+        public Criteria andPtrNotEqualTo(String value) {
+            addCriterion("ptr <>", value, "ptr");
             return (Criteria) this;
         }
 
-        public Criteria andApStatGreaterThan(Byte value) {
-            addCriterion("ap_stat >", value, "apStat");
+        public Criteria andPtrGreaterThan(String value) {
+            addCriterion("ptr >", value, "ptr");
             return (Criteria) this;
         }
 
-        public Criteria andApStatGreaterThanOrEqualTo(Byte value) {
-            addCriterion("ap_stat >=", value, "apStat");
+        public Criteria andPtrGreaterThanOrEqualTo(String value) {
+            addCriterion("ptr >=", value, "ptr");
             return (Criteria) this;
         }
 
-        public Criteria andApStatLessThan(Byte value) {
-            addCriterion("ap_stat <", value, "apStat");
+        public Criteria andPtrLessThan(String value) {
+            addCriterion("ptr <", value, "ptr");
             return (Criteria) this;
         }
 
-        public Criteria andApStatLessThanOrEqualTo(Byte value) {
-            addCriterion("ap_stat <=", value, "apStat");
+        public Criteria andPtrLessThanOrEqualTo(String value) {
+            addCriterion("ptr <=", value, "ptr");
             return (Criteria) this;
         }
 
-        public Criteria andApStatIn(List<Byte> values) {
-            addCriterion("ap_stat in", values, "apStat");
+        public Criteria andPtrLike(String value) {
+            addCriterion("ptr like", value, "ptr");
             return (Criteria) this;
         }
 
-        public Criteria andApStatNotIn(List<Byte> values) {
-            addCriterion("ap_stat not in", values, "apStat");
+        public Criteria andPtrNotLike(String value) {
+            addCriterion("ptr not like", value, "ptr");
             return (Criteria) this;
         }
 
-        public Criteria andApStatBetween(Byte value1, Byte value2) {
-            addCriterion("ap_stat between", value1, value2, "apStat");
+        public Criteria andPtrIn(List<String> values) {
+            addCriterion("ptr in", values, "ptr");
             return (Criteria) this;
         }
 
-        public Criteria andApStatNotBetween(Byte value1, Byte value2) {
-            addCriterion("ap_stat not between", value1, value2, "apStat");
+        public Criteria andPtrNotIn(List<String> values) {
+            addCriterion("ptr not in", values, "ptr");
+            return (Criteria) this;
+        }
+
+        public Criteria andPtrBetween(String value1, String value2) {
+            addCriterion("ptr between", value1, value2, "ptr");
+            return (Criteria) this;
+        }
+
+        public Criteria andPtrNotBetween(String value1, String value2) {
+            addCriterion("ptr not between", value1, value2, "ptr");
             return (Criteria) this;
         }
 
@@ -522,6 +532,11 @@ public class ApplicationCriteria {
 
         public Criteria andApCommentLikeInsensitive(String value) {
             addCriterion("upper(ap_comment) like", value.toUpperCase(), "apComment");
+            return (Criteria) this;
+        }
+
+        public Criteria andPtrLikeInsensitive(String value) {
+            addCriterion("upper(ptr) like", value.toUpperCase(), "ptr");
             return (Criteria) this;
         }
     }

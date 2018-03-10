@@ -13,6 +13,10 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
+import static com.jiangtao.cos.service.RvFlowService.HEAD;
+import static com.jiangtao.cos.service.RvFlowService.MID;
+import static com.jiangtao.cos.service.RvFlowService.TAIL;
+
 @Controller
 @RequestMapping("trn")
 public class TranController {
@@ -66,54 +70,66 @@ public class TranController {
 
     @RequestMapping("getFlw")
     public @ResponseBody
-    Callable<List<RvFlowKey>> getRvFlowsByObj(String oid,int page,int row){
+    Callable<List<RvFlow>> getRvFlowsByObj(String oid,int page,int row){
         if(oid == null || oid.equals("")) return null;
-        return new Callable<List<RvFlowKey>>() {
+        return new Callable<List<RvFlow>>() {
             @Override
-            public List<RvFlowKey> call() throws Exception {
+            public List<RvFlow> call() throws Exception {
                 RvFlowCriteria flowCriteria = new RvFlowCriteria();
-                flowCriteria.or().andRobjPkEqualTo(oid);
+                flowCriteria.or().andObjEqualTo(oid);
                 return rvFlowService.get(flowCriteria,page,row);
             }
         };
     }
 
-    @RequestMapping("addFlow")
+    @RequestMapping("afTail")
     public @ResponseBody
-    String addRvFlow(String obj,int serial,String atm){
-        if(obj == null || atm == null) return null;
-        if(obj.equals("") || atm.equals("")) return null;
-        RvFlowKey rvFlowKey = new RvFlowKey();
-        rvFlowKey.setRobjPk(obj);
-        rvFlowKey.setRbojSerial((byte)serial);
-        rvFlowKey.setAtPk(atm);
-        String flag;
-        try {
-            flag = Integer.toString(rvFlowService.insert(rvFlowKey));
-        } catch (Exception e) {
-            e.printStackTrace();
-            flag = "error";
-        }
-        return flag;
+    String addRvFlowToEnd(String obj,String pre,String atm){
+        if(obj == null || obj.equals("")) return "error";
+        RvFlow rvFlow = new RvFlow();
+        rvFlow.setPk(UUID.randomUUID().toString().substring(0,8));
+        rvFlow.setPre(pre);
+        rvFlow.setAtm(atm);
+        rvFlow.setObj(obj);
+        return Integer.toString(rvFlowService.insert(rvFlow,TAIL));
+    }
+
+    @RequestMapping("afHead")
+    public @ResponseBody
+    String addRvFlowToHead(String obj,String suc,String atm){
+        if(obj == null || obj.equals("")) return "error";
+        RvFlow rvFlow = new RvFlow();
+        rvFlow.setPk(UUID.randomUUID().toString().substring(0,8));
+        rvFlow.setAtm(atm);
+        rvFlow.setObj(obj);
+        rvFlow.setSuc(suc);
+        return Integer.toString(rvFlowService.insert(rvFlow,HEAD));
+    }
+    @RequestMapping("afMid")
+    public @ResponseBody
+    String addRvFlowToMid(String obj,String pre,String suc,String atm){
+        if(obj == null || obj.equals("")) return "error";
+        RvFlow rvFlow = new RvFlow();
+        rvFlow.setPk(UUID.randomUUID().toString().substring(0,8));
+        rvFlow.setObj(obj);
+        rvFlow.setAtm(atm);
+        rvFlow.setPre(pre);
+        rvFlow.setSuc(suc);
+        return Integer.toString(rvFlowService.insert(rvFlow,MID));
+    }
+    @RequestMapping("afSig")
+    public @ResponseBody
+    String addRvFlowSig(String obj,String atm){
+        if(obj == null || obj.equals("")) return "error";
+        RvFlow rvFlow = new RvFlow();
+        rvFlow.setPk(UUID.randomUUID().toString().substring(0,8));
+        return null;
     }
 
     @RequestMapping("delFlw")
     public @ResponseBody
-    String deleteRvFlow(String obj,Byte serial,String atm){
-        if(obj == null || serial == null || atm == null) return null;
-        if(obj.equals("") || atm.equals("")) return null;
-        RvFlowKey rvFlowKey = new RvFlowKey();
-        rvFlowKey.setRobjPk(obj);
-        rvFlowKey.setRbojSerial(serial);
-        rvFlowKey.setAtPk(atm);
-        String flag;
-        try {
-            flag = Integer.toString(rvFlowService.delete(rvFlowKey));
-        } catch (Exception e) {
-            e.printStackTrace();
-            flag = "error";
-        }
-        return flag;
+    String deleteRvFlow(String pk) throws Exception {
+        return Integer.toString(rvFlowService.delete(pk));
     }
 
     @RequestMapping("getAtmByPsi")

@@ -13,7 +13,6 @@ import java.util.concurrent.Callable;
 
 @Controller
 @RequestMapping("app")
-@Scope("session")
 public class ApplicationController {
     @Autowired
     private ApplicationService applicationService;
@@ -30,10 +29,7 @@ public class ApplicationController {
     @Autowired
     private RvFlowService rvFlowService;
 
-    @Autowired
-    private RvObjectService rvObjectService;
-
-    @RequestMapping("pk")
+    @RequestMapping(value = "pk",method = RequestMethod.POST)
     public @ResponseBody
     Callable<Application> getApplicationByPk(String pk){
         return new Callable<Application>() {
@@ -44,7 +40,7 @@ public class ApplicationController {
         };
     }
 
-    @RequestMapping("usr")
+    @RequestMapping(value = "usr", method = RequestMethod.POST)
     public @ResponseBody
     Callable<List<Application>> getApplicationsByUser(HttpSession session,int page,int row){
         String uid = (String) session.getAttribute("currentUser");
@@ -59,7 +55,7 @@ public class ApplicationController {
         };
     }
 
-    @RequestMapping("rvw")
+    @RequestMapping(value = "rvw", method = RequestMethod.POST)
     public @ResponseBody
     Callable<List<Application>> getApplicationByReviewer(HttpSession session, int page, int row){
         String uid = (String) session.getAttribute("currentUser");
@@ -78,17 +74,17 @@ public class ApplicationController {
                             .andRvDpEqualTo(o.getDepartment()).andRvPosiEqualTo(o.getPosi());
                      atmTrans.addAll(atmTranService.get(atmTranCriteria));
                 }
-                Set<RvFlowKey> rvFlowKeySet = Collections.synchronizedSet(new HashSet<>());
+                Set<RvFlow> rvFlowKeySet = Collections.synchronizedSet(new HashSet<>());
                 for(AtmTran a : atmTrans){
                     RvFlowCriteria rvFlowCriteria = new RvFlowCriteria();
-                    rvFlowCriteria.or().andAtPkEqualTo(a.getPk());
+                    rvFlowCriteria.or().andAtmEqualTo(a.getPk());
                     rvFlowKeySet.addAll(new HashSet<>(rvFlowService.get(rvFlowCriteria)));
                 }
 
                 List<Application> applicationList = new ArrayList<>();
-                for(RvFlowKey r : rvFlowKeySet){
+                for(RvFlow r : rvFlowKeySet){
                     ApplicationCriteria applicationCriteria = new ApplicationCriteria();
-                    applicationCriteria.or().andRvPkEqualTo(r.getRobjPk()).andApStatEqualTo(r.getRbojSerial());
+                    applicationCriteria.or().andPtrEqualTo(r.getPk());
                     applicationList.addAll(applicationService.get(applicationCriteria,page,row));
                 }
                 return applicationList;
@@ -96,7 +92,7 @@ public class ApplicationController {
         };
     }
 
-    @RequestMapping("add")
+    @RequestMapping(value = "add",method = RequestMethod.POST)
     public @ResponseBody
     Callable<String> addApplication(String rv,String comment,HttpSession session)throws Exception{
         return new Callable<String>() {
@@ -110,7 +106,7 @@ public class ApplicationController {
                 application.setApActor(uid);
                 application.setApComment(comment);
                 application.setApDate(new Date());
-                application.setApStat((byte) 0);
+                application.setPtr("");
                 try {
                     applicationService.insert(application);
                 } catch (Exception e) {
@@ -122,7 +118,7 @@ public class ApplicationController {
         };
     }
 
-    @RequestMapping("upc")
+    @RequestMapping(value = "upc",method = RequestMethod.POST)
     public @ResponseBody
     Callable<String> updateComment(String ap,String comment)throws Exception{
         return new Callable<String>() {
@@ -136,20 +132,33 @@ public class ApplicationController {
         };
     }
 
-    @RequestMapping("ups")
+    @RequestMapping(value = "ups",method = RequestMethod.POST)
     public @ResponseBody
-    Callable<String> updateStat(String pk,int stat)throws Exception{
+    Callable<String> updateStat(String pk,String ptr)throws Exception{
         return new Callable<String>() {
             @Override
             public String call() throws Exception {
                 Application application = new Application();
                 application.setApPk(pk);
-                application.setApStat((byte)stat);
-                return Integer.toString(applicationService.insert(application));
+                application.setPtr(ptr);
+                return Integer.toString(applicationService.update(application));
             }
         };
     }
-    @RequestMapping("del")
+    @RequestMapping(value = "addToFlow",method = RequestMethod.POST)
+    public @ResponseBody
+    String addToRvFlow(String app) throws Exception {
+        //应该交由判定机构来做
+        Application application = applicationService.getByPk(app);
+        if(application == null || application.getPtr() != null)return "error";
+        RvFlowCriteria rvFlowCriteria = new RvFlowCriteria();
+        rvFlowCriteria.or().andObjEqualTo(application.getRvPk()).andPreIsNull();
+        RvFlow rvFlow = rvFlowService.get(rvFlowCriteria).get(0);
+        application.setPtr(rvFlow.getPk());
+        return Integer.toString(applicationService.update(application));
+
+    }
+    @RequestMapping(value = "del",method = RequestMethod.POST)
     public @ResponseBody
     Callable<String> deleteApplication(String pk)throws Exception{
         return new Callable<String>() {
@@ -158,5 +167,18 @@ public class ApplicationController {
                 return Integer.toString(applicationService.delete(pk));
             }
         };
+    }
+
+    @RequestMapping(value = "pass",method = RequestMethod.POST)
+    public @ResponseBody
+    String passApp(String apk) throws Exception {
+        Application application = applicationService.getByPk(apk);
+        if(application == null) return "null_app";
+        if(application.getPtr() == null || application.getPtr().equals("")) return "null_ptr";
+        if(application.getRvPk() == null || application.getRvPk().equals("")) return "null_obj";
+        RvFlow rvFlow = rvFlowService.getByPk(application.getPtr());
+        if(rvFlow.getSuc() == null || rvFlow.getSuc().equals("")) return "finished";
+        application.setPtr(rvFlow.getSuc());
+        return Integer.toString(applicationService.update(application));
     }
 }

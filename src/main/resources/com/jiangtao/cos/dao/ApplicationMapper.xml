@@ -7,7 +7,7 @@
     <result column="rv_pk" jdbcType="CHAR" property="rvPk" />
     <result column="ap_date" jdbcType="TIMESTAMP" property="apDate" />
     <result column="ap_comment" jdbcType="VARCHAR" property="apComment" />
-    <result column="ap_stat" jdbcType="TINYINT" property="apStat" />
+    <result column="ptr" jdbcType="CHAR" property="ptr" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -68,7 +68,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    ap_pk, ap_actor, rv_pk, ap_date, ap_comment, ap_stat
+    ap_pk, ap_actor, rv_pk, ap_date, ap_comment, ptr
   </sql>
   <select id="selectByExample" parameterType="com.jiangtao.cos.pojo.ApplicationCriteria" resultMap="BaseResultMap">
     select
@@ -102,9 +102,9 @@
   </delete>
   <insert id="insert" parameterType="com.jiangtao.cos.pojo.Application">
     insert into application (ap_pk, ap_actor, rv_pk, ap_date, 
-      ap_comment, ap_stat)
+      ap_comment, ptr)
     values (#{apPk,jdbcType=CHAR}, #{apActor,jdbcType=CHAR}, #{rvPk,jdbcType=CHAR}, #{apDate,jdbcType=TIMESTAMP}, 
-      #{apComment,jdbcType=VARCHAR}, #{apStat,jdbcType=TINYINT})
+      #{apComment,jdbcType=VARCHAR}, #{ptr,jdbcType=CHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.jiangtao.cos.pojo.Application">
     insert into application
@@ -124,8 +124,8 @@
       <if test="apComment != null">
         ap_comment,
       </if>
-      <if test="apStat != null">
-        ap_stat,
+      <if test="ptr != null">
+        ptr,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -144,8 +144,8 @@
       <if test="apComment != null">
         #{apComment,jdbcType=VARCHAR},
       </if>
-      <if test="apStat != null">
-        #{apStat,jdbcType=TINYINT},
+      <if test="ptr != null">
+        #{ptr,jdbcType=CHAR},
       </if>
     </trim>
   </insert>
@@ -173,8 +173,8 @@
       <if test="record.apComment != null">
         ap_comment = #{record.apComment,jdbcType=VARCHAR},
       </if>
-      <if test="record.apStat != null">
-        ap_stat = #{record.apStat,jdbcType=TINYINT},
+      <if test="record.ptr != null">
+        ptr = #{record.ptr,jdbcType=CHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -188,7 +188,7 @@
       rv_pk = #{record.rvPk,jdbcType=CHAR},
       ap_date = #{record.apDate,jdbcType=TIMESTAMP},
       ap_comment = #{record.apComment,jdbcType=VARCHAR},
-      ap_stat = #{record.apStat,jdbcType=TINYINT}
+      ptr = #{record.ptr,jdbcType=CHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -208,8 +208,8 @@
       <if test="apComment != null">
         ap_comment = #{apComment,jdbcType=VARCHAR},
       </if>
-      <if test="apStat != null">
-        ap_stat = #{apStat,jdbcType=TINYINT},
+      <if test="ptr != null">
+        ptr = #{ptr,jdbcType=CHAR},
       </if>
     </set>
     where ap_pk = #{apPk,jdbcType=CHAR}
@@ -220,7 +220,7 @@
       rv_pk = #{rvPk,jdbcType=CHAR},
       ap_date = #{apDate,jdbcType=TIMESTAMP},
       ap_comment = #{apComment,jdbcType=VARCHAR},
-      ap_stat = #{apStat,jdbcType=TINYINT}
+      ptr = #{ptr,jdbcType=CHAR}
     where ap_pk = #{apPk,jdbcType=CHAR}
   </update>
   <select id="selectByExampleWithRowbounds" parameterType="com.jiangtao.cos.pojo.ApplicationCriteria" resultMap="BaseResultMap">

@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.jiangtao.cos.dao.RvFlowMapper">
-  <resultMap id="BaseResultMap" type="com.jiangtao.cos.pojo.RvFlowKey">
-    <id column="robj_pk" jdbcType="CHAR" property="robjPk" />
-    <id column="rboj_serial" jdbcType="TINYINT" property="rbojSerial" />
-    <id column="at_pk" jdbcType="CHAR" property="atPk" />
+  <resultMap id="BaseResultMap" type="com.jiangtao.cos.pojo.RvFlow">
+    <id column="pk" jdbcType="CHAR" property="pk" />
+    <result column="pre" jdbcType="CHAR" property="pre" />
+    <result column="suc" jdbcType="CHAR" property="suc" />
+    <result column="atm" jdbcType="CHAR" property="atm" />
+    <result column="obj" jdbcType="CHAR" property="obj" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -65,7 +67,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    robj_pk, rboj_serial, at_pk
+    pk, pre, suc, atm, obj
   </sql>
   <select id="selectByExample" parameterType="com.jiangtao.cos.pojo.RvFlowCriteria" resultMap="BaseResultMap">
     select
@@ -81,11 +83,15 @@
       order by ${orderByClause}
     </if>
   </select>
-  <delete id="deleteByPrimaryKey" parameterType="com.jiangtao.cos.pojo.RvFlowKey">
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from rv_flow
+    where pk = #{pk,jdbcType=CHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from rv_flow
-    where robj_pk = #{robjPk,jdbcType=CHAR}
-      and rboj_serial = #{rbojSerial,jdbcType=TINYINT}
-      and at_pk = #{atPk,jdbcType=CHAR}
+    where pk = #{pk,jdbcType=CHAR}
   </delete>
   <delete id="deleteByExample" parameterType="com.jiangtao.cos.pojo.RvFlowCriteria">
     delete from rv_flow
@@ -93,34 +99,46 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.jiangtao.cos.pojo.RvFlowKey">
-    insert into rv_flow (robj_pk, rboj_serial, at_pk
-      )
-    values (#{robjPk,jdbcType=CHAR}, #{rbojSerial,jdbcType=TINYINT}, #{atPk,jdbcType=CHAR}
-      )
+  <insert id="insert" parameterType="com.jiangtao.cos.pojo.RvFlow">
+    insert into rv_flow (pk, pre, suc, atm, 
+      obj)
+    values (#{pk,jdbcType=CHAR}, #{pre,jdbcType=CHAR}, #{suc,jdbcType=CHAR}, #{atm,jdbcType=CHAR}, 
+      #{obj,jdbcType=CHAR})
   </insert>
-  <insert id="insertSelective" parameterType="com.jiangtao.cos.pojo.RvFlowKey">
+  <insert id="insertSelective" parameterType="com.jiangtao.cos.pojo.RvFlow">
     insert into rv_flow
     <trim prefix="(" suffix=")" suffixOverrides=",">
-      <if test="robjPk != null">
-        robj_pk,
+      <if test="pk != null">
+        pk,
       </if>
-      <if test="rbojSerial != null">
-        rboj_serial,
+      <if test="pre != null">
+        pre,
       </if>
-      <if test="atPk != null">
-        at_pk,
+      <if test="suc != null">
+        suc,
+      </if>
+      <if test="atm != null">
+        atm,
+      </if>
+      <if test="obj != null">
+        obj,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
-      <if test="robjPk != null">
-        #{robjPk,jdbcType=CHAR},
+      <if test="pk != null">
+        #{pk,jdbcType=CHAR},
       </if>
-      <if test="rbojSerial != null">
-        #{rbojSerial,jdbcType=TINYINT},
+      <if test="pre != null">
+        #{pre,jdbcType=CHAR},
       </if>
-      <if test="atPk != null">
-        #{atPk,jdbcType=CHAR},
+      <if test="suc != null">
+        #{suc,jdbcType=CHAR},
+      </if>
+      <if test="atm != null">
+        #{atm,jdbcType=CHAR},
+      </if>
+      <if test="obj != null">
+        #{obj,jdbcType=CHAR},
       </if>
     </trim>
   </insert>
@@ -133,14 +151,20 @@
   <update id="updateByExampleSelective" parameterType="map">
     update rv_flow
     <set>
-      <if test="record.robjPk != null">
-        robj_pk = #{record.robjPk,jdbcType=CHAR},
+      <if test="record.pk != null">
+        pk = #{record.pk,jdbcType=CHAR},
       </if>
-      <if test="record.rbojSerial != null">
-        rboj_serial = #{record.rbojSerial,jdbcType=TINYINT},
+      <if test="record.pre != null">
+        pre = #{record.pre,jdbcType=CHAR},
       </if>
-      <if test="record.atPk != null">
-        at_pk = #{record.atPk,jdbcType=CHAR},
+      <if test="record.suc != null">
+        suc = #{record.suc,jdbcType=CHAR},
+      </if>
+      <if test="record.atm != null">
+        atm = #{record.atm,jdbcType=CHAR},
+      </if>
+      <if test="record.obj != null">
+        obj = #{record.obj,jdbcType=CHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -149,12 +173,40 @@
   </update>
   <update id="updateByExample" parameterType="map">
     update rv_flow
-    set robj_pk = #{record.robjPk,jdbcType=CHAR},
-      rboj_serial = #{record.rbojSerial,jdbcType=TINYINT},
-      at_pk = #{record.atPk,jdbcType=CHAR}
+    set pk = #{record.pk,jdbcType=CHAR},
+      pre = #{record.pre,jdbcType=CHAR},
+      suc = #{record.suc,jdbcType=CHAR},
+      atm = #{record.atm,jdbcType=CHAR},
+      obj = #{record.obj,jdbcType=CHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jiangtao.cos.pojo.RvFlow">
+    update rv_flow
+    <set>
+      <if test="pre != null">
+        pre = #{pre,jdbcType=CHAR},
+      </if>
+      <if test="suc != null">
+        suc = #{suc,jdbcType=CHAR},
+      </if>
+      <if test="atm != null">
+        atm = #{atm,jdbcType=CHAR},
+      </if>
+      <if test="obj != null">
+        obj = #{obj,jdbcType=CHAR},
+      </if>
+    </set>
+    where pk = #{pk,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jiangtao.cos.pojo.RvFlow">
+    update rv_flow
+    set pre = #{pre,jdbcType=CHAR},
+      suc = #{suc,jdbcType=CHAR},
+      atm = #{atm,jdbcType=CHAR},
+      obj = #{obj,jdbcType=CHAR}
+    where pk = #{pk,jdbcType=CHAR}
   </update>
   <select id="selectByExampleWithRowbounds" parameterType="com.jiangtao.cos.pojo.RvFlowCriteria" resultMap="BaseResultMap">
     select

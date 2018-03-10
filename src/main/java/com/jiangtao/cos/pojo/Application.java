@@ -14,7 +14,7 @@ public class Application implements Serializable {
 
     private String apComment;
 
-    private Byte apStat;
+    private String ptr;
 
     private static final long serialVersionUID = 1L;
 
@@ -58,12 +58,12 @@ public class Application implements Serializable {
         this.apComment = apComment == null ? null : apComment.trim();
     }
 
-    public Byte getApStat() {
-        return apStat;
+    public String getPtr() {
+        return ptr;
     }
 
-    public void setApStat(Byte apStat) {
-        this.apStat = apStat;
+    public void setPtr(String ptr) {
+        this.ptr = ptr == null ? null : ptr.trim();
     }
 
     @Override
@@ -77,7 +77,7 @@ public class Application implements Serializable {
         sb.append(", rvPk=").append(rvPk);
         sb.append(", apDate=").append(apDate);
         sb.append(", apComment=").append(apComment);
-        sb.append(", apStat=").append(apStat);
+        sb.append(", ptr=").append(ptr);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();
