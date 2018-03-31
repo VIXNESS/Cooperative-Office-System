@@ -56,37 +56,51 @@ public class StaffController {
             OfficeCriteria officeCriteria = new OfficeCriteria();
             officeCriteria.or().andExpiredDateGreaterThan(new Date());
             List<Office> officeList = officeService.get(officeCriteria);
-            List<OfficeInfoView> officeInfoViewList = new ArrayList<>();
-            for(Office office : officeList){
-                Boolean flag = false;
-                for(OfficeInfoView officeInfoView: officeInfoViewList){
-                    if(officeInfoView.getDepartmentId().equals(office.getDepartment()) && officeInfoView.getPositionId().equals(office.getPosi())){
-                        flag = true;
-                    }
-                }
-                if(!flag){
-                    OfficeInfoView infoView = new OfficeInfoView();
-                    infoView.setDepartmentId(office.getDepartment());
-                    infoView.setPositionId(office.getPosi());
-                    officeInfoViewList.add(infoView);
-                }
-            }
             DepartmentCriteria departmentCriteria = new DepartmentCriteria();
             departmentCriteria.or().andAddrIsNotNull();
             List<Department> departmentList = departmentService.get(departmentCriteria);
             PositionCriteria positionCriteria = new PositionCriteria();
             positionCriteria.or().andPosiNameIsNotNull();
             List<Position> positionList = positionService.get(positionCriteria);
-            for(OfficeInfoView officeInfoView : officeInfoViewList){
-                for(Department department: departmentList){
-                    if(department.getId().equals(officeInfoView.getDepartmentId())){
-                        officeInfoView.setDepartmentName(department.getName());
+            List<OfficeInfoView> officeInfoViewList = new ArrayList<>();
+            for(Office office: officeList){
+                Boolean hit = false;
+                for(OfficeInfoView infoView: officeInfoViewList){
+                    if(office.getDepartment().equals(infoView.getDepartment().getId())){
+                        hit = true;
+                        Boolean pHit = false;
+                        for (Position p: infoView.getPositionList()){
+                            if(p.getPosiPk().equals(office.getPosi())){
+                                pHit = true;
+                                break;
+                            }
+                        }
+                        if(pHit == false){
+                            Position temp = null;
+                            for(Position p: positionList) {
+                                if (p.getPosiPk().equals(office.getPosi())) {
+                                    infoView.getPositionList().add(p);
+                                    break;
+                                }
+                            }
+                        }
                     }
+                    if(hit) break;
                 }
-                for(Position position: positionList){
-                    if(position.getPosiPk().equals(officeInfoView.getPositionId())){
-                        officeInfoView.setPositionName(position.getPosiName());
+                if(hit == false){
+                    OfficeInfoView infoViewTemp = new OfficeInfoView();
+                    for(Department d: departmentList){
+                        if(d.getId().equals(office.getDepartment())){
+                            infoViewTemp.setDepartment(d);
+                        }
                     }
+                    for(Position p: positionList){
+                        if(p.getPosiPk().equals(office.getPosi())){
+                            infoViewTemp.setPositionList(new ArrayList<>());
+                            infoViewTemp.getPositionList().add(p);
+                        }
+                    }
+                    officeInfoViewList.add(infoViewTemp);
                 }
             }
             return officeInfoViewList;

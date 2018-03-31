@@ -25,44 +25,28 @@ public class LogController {
         if(uid == null || uid.equals("")) return null;
         LogCriteria logCriteria = new LogCriteria();
         logCriteria.or().andStaffIdEqualTo(uid);
-        return new Callable<List<Log>>() {
-            @Override
-            public List<Log> call() throws Exception {
-                return logService.get(logCriteria,page,row);
-            }
-        };
+        return () -> logService.get(logCriteria,page,row);
     }
 
     public Callable<List<Log>> getLogsByDate(String date, int page, int row) throws ParseException {
         LogCriteria logCriteria = new LogCriteria();
         logCriteria.or().andLogDateEqualTo(new SimpleDateFormat("yyyy-mm-dd").parse(date));
-        return new Callable<List<Log>>() {
-            @Override
-            public List<Log> call() throws Exception {
-                return logService.get(logCriteria,page,row);
-            }
-        };
+        return () -> logService.get(logCriteria,page,row);
     }
 
     public Callable<List<Log>> getLogsByCategory(int category,int page,int row){
-        return new Callable<List<Log>>() {
-            @Override
-            public List<Log> call() throws Exception {
-                LogCriteria logCriteria = new LogCriteria();
-                logCriteria.or().andCategoryEqualTo((byte)category);
-                return logService.get(logCriteria,page,row);
-            }
+        return () -> {
+            LogCriteria logCriteria = new LogCriteria();
+            logCriteria.or().andCategoryEqualTo((byte)category);
+            return logService.get(logCriteria,page,row);
         };
     }
 
     public Callable<List<Log>> getLogsByTargetTable(String tb,int page,int row){
-        return new Callable<List<Log>>() {
-            @Override
-            public List<Log> call() throws Exception {
-                LogCriteria logCriteria = new LogCriteria();
-                logCriteria.or().andTgTableEqualTo(tb);
-                return logService.get(logCriteria,page,row);
-            }
+        return () -> {
+            LogCriteria logCriteria = new LogCriteria();
+            logCriteria.or().andTgTableEqualTo(tb);
+            return logService.get(logCriteria,page,row);
         };
     }
 }

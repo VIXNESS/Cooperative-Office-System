@@ -7,6 +7,9 @@
       to this file before it is usable by MyBatis.
     This file was generated on Sat Mar 10 22:15:23 CST 2018.
   -->
+  <settings>
+    <setting name="logImpl" value="LOG4J"/>
+  </settings>
   <mappers>
     <mapper resource="com/jiangtao/cos/dao/ApplicationMapper.xml" />
     <mapper resource="com/jiangtao/cos/dao/AtmTranMapper.xml" />

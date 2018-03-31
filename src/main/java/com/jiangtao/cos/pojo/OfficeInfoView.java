@@ -1,40 +1,24 @@
 package com.jiangtao.cos.pojo;
 
+import java.util.List;
+
 public class OfficeInfoView {
-    private Byte positionId;
-    private String positionName;
-    private String departmentId;
-    private String departmentName;
+    private Department department;
+    private List<Position> positionList;
 
-    public Byte getPositionId() {
-        return positionId;
+    public Department getDepartment() {
+        return department;
     }
 
-    public void setPositionId(Byte positionId) {
-        this.positionId = positionId;
+    public void setDepartment(Department department) {
+        this.department = department;
     }
 
-    public String getPositionName() {
-        return positionName;
+    public List<Position> getPositionList() {
+        return positionList;
     }
 
-    public void setPositionName(String positionName) {
-        this.positionName = positionName;
-    }
-
-    public String getDepartmentId() {
-        return departmentId;
-    }
-
-    public void setDepartmentId(String departmentId) {
-        this.departmentId = departmentId;
-    }
-
-    public String getDepartmentName() {
-        return departmentName;
-    }
-
-    public void setDepartmentName(String departmentName) {
-        this.departmentName = departmentName;
+    public void setPositionList(List<Position> positionList) {
+        this.positionList = positionList;
     }
 }

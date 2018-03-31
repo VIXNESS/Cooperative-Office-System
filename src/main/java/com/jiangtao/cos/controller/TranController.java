@@ -61,13 +61,10 @@ public class TranController {
     @RequestMapping("getObj")
     public @ResponseBody
     Callable<List<RvObject>> getRvObj(){
-        return new Callable<List<RvObject>>() {
-            @Override
-            public List<RvObject> call() throws Exception {
-                RvObjectCriteria rvObjectCriteria = new RvObjectCriteria();
-                rvObjectCriteria.or().andObjPkIsNotNull();
-                return rvObjectService.get(rvObjectCriteria);
-            }
+        return () -> {
+            RvObjectCriteria rvObjectCriteria = new RvObjectCriteria();
+            rvObjectCriteria.or().andObjPkIsNotNull();
+            return rvObjectService.get(rvObjectCriteria);
         };
     }
 
@@ -75,13 +72,10 @@ public class TranController {
     public @ResponseBody
     Callable<List<RvFlow>> getRvFlowsByObj(String oid,int page,int row){
         if(oid == null || oid.equals("")) return null;
-        return new Callable<List<RvFlow>>() {
-            @Override
-            public List<RvFlow> call() throws Exception {
-                RvFlowCriteria flowCriteria = new RvFlowCriteria();
-                flowCriteria.or().andObjEqualTo(oid);
-                return rvFlowService.get(flowCriteria,page,row);
-            }
+        return () -> {
+            RvFlowCriteria flowCriteria = new RvFlowCriteria();
+            flowCriteria.or().andObjEqualTo(oid);
+            return rvFlowService.get(flowCriteria,page,row);
         };
     }
 
@@ -137,42 +131,33 @@ public class TranController {
 
     @RequestMapping("getAtms")
     public @ResponseBody
-    Callable<List<AtmTran>> getAllAtm(String department, int position){
-        return new Callable<List<AtmTran>>() {
-            @Override
-            public List<AtmTran> call() throws Exception {
-                AtmTranCriteria atmTranCriteria = new AtmTranCriteria();
-                atmTranCriteria.or().andPkIsNotNull();
-                return atmTranService.get(atmTranCriteria);
-            }
+    Callable<List<AtmTran>> getAllAtm(){
+        return () -> {
+            AtmTranCriteria atmTranCriteria = new AtmTranCriteria();
+            atmTranCriteria.or().andPkIsNotNull();
+            return atmTranService.get(atmTranCriteria);
         };
     }
 
     @RequestMapping("getAtmByDpm")
     public @ResponseBody
     Callable<List<AtmTran>> getAtmByDepartment(String department,int page,int row){
-        return new Callable<List<AtmTran>>() {
-            @Override
-            public List<AtmTran> call() throws Exception {
-                if(department == null || department.equals("")) return null;
-                AtmTranCriteria atmTranCriteria = new AtmTranCriteria();
-                atmTranCriteria.or().andRvDpEqualTo(department);
-                return atmTranService.get(atmTranCriteria,page,row);
-            }
+        return () -> {
+            if(department == null || department.equals("")) return null;
+            AtmTranCriteria atmTranCriteria = new AtmTranCriteria();
+            atmTranCriteria.or().andRvDpEqualTo(department);
+            return atmTranService.get(atmTranCriteria,page,row);
         };
     }
 
     @RequestMapping("getAtmByOfc")
     public @ResponseBody
     Callable<List<AtmTran>> getAtmByOffice(String department,int position,int page,int row){
-        return new Callable<List<AtmTran>>() {
-            @Override
-            public List<AtmTran> call() throws Exception {
-                if(department == null || department.equals("")) return null;
-                AtmTranCriteria atmTranCriteria = new AtmTranCriteria();
-                atmTranCriteria.or().andRvDpEqualTo(department).andRvPosiEqualTo((byte) position);
-                return atmTranService.get(atmTranCriteria,page,row);
-            }
+        return () -> {
+            if(department == null || department.equals("")) return null;
+            AtmTranCriteria atmTranCriteria = new AtmTranCriteria();
+            atmTranCriteria.or().andRvDpEqualTo(department).andRvPosiEqualTo((byte) position);
+            return atmTranService.get(atmTranCriteria,page,row);
         };
     }
 

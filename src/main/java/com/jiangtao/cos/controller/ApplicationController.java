@@ -33,26 +33,18 @@ public class ApplicationController {
     @RequestMapping(value = "pk",method = RequestMethod.POST)
     public @ResponseBody
     Callable<Application> getApplicationByPk(String pk){
-        return new Callable<Application>() {
-            @Override
-            public Application call() throws Exception {
-                return applicationService.getByPk(pk);
-            }
-        };
+        return () -> applicationService.getByPk(pk);
     }
 
     @RequestMapping(value = "usr", method = RequestMethod.POST)
     public @ResponseBody
     Callable<List<Application>> getApplicationsByUser(HttpSession session,int page,int row){
         String uid = (String) session.getAttribute("currentUser");
-        return new Callable<List<Application>>() {
-            @Override
-            public List<Application> call() throws Exception {
-                ApplicationCriteria applicationCriteria = new ApplicationCriteria();
-                applicationCriteria.or()
-                        .andApActorEqualTo(uid);
-                return applicationService.get(applicationCriteria,page,row);
-            }
+        return () -> {
+            ApplicationCriteria applicationCriteria = new ApplicationCriteria();
+            applicationCriteria.or()
+                    .andApActorEqualTo(uid);
+            return applicationService.get(applicationCriteria,page,row);
         };
     }
 
@@ -60,96 +52,84 @@ public class ApplicationController {
     public @ResponseBody
     Callable<List<Application>> getApplicationByReviewer(HttpSession session, int page, int row){
         String uid = (String) session.getAttribute("currentUser");
-        return new Callable<List<Application>>() {
-            @Override
-            public List<Application> call() throws Exception {
-                Staff staff = staffService.getByPk(uid);
-                OfficeCriteria officeCriteria = new OfficeCriteria();
-                officeCriteria.or()
-                        .andStaffEqualTo(staff.getId());
-                List<Office> officeList = officeService.get(officeCriteria);
-                List<AtmTran> atmTrans = new ArrayList<>();
-                for(Office o : officeList){
-                    AtmTranCriteria atmTranCriteria = new AtmTranCriteria();
-                    atmTranCriteria.or()
-                            .andRvDpEqualTo(o.getDepartment()).andRvPosiEqualTo(o.getPosi());
-                     atmTrans.addAll(atmTranService.get(atmTranCriteria));
-                }
-                Set<RvFlow> rvFlowKeySet = Collections.synchronizedSet(new HashSet<>());
-                for(AtmTran a : atmTrans){
-                    RvFlowCriteria rvFlowCriteria = new RvFlowCriteria();
-                    rvFlowCriteria.or().andAtmEqualTo(a.getPk());
-                    rvFlowKeySet.addAll(new HashSet<>(rvFlowService.get(rvFlowCriteria)));
-                }
-
-                List<Application> applicationList = new ArrayList<>();
-                for(RvFlow r : rvFlowKeySet){
-                    ApplicationCriteria applicationCriteria = new ApplicationCriteria();
-                    applicationCriteria.or().andPtrEqualTo(r.getPk());
-                    applicationList.addAll(applicationService.get(applicationCriteria,page,row));
-                }
-                return applicationList;
+        return () -> {
+            Staff staff = staffService.getByPk(uid);
+            OfficeCriteria officeCriteria = new OfficeCriteria();
+            officeCriteria.or()
+                    .andStaffEqualTo(staff.getId());
+            List<Office> officeList = officeService.get(officeCriteria);
+            List<AtmTran> atmTrans = new ArrayList<>();
+            for(Office o : officeList){
+                AtmTranCriteria atmTranCriteria = new AtmTranCriteria();
+                atmTranCriteria.or()
+                        .andRvDpEqualTo(o.getDepartment()).andRvPosiEqualTo(o.getPosi());
+                atmTrans.addAll(atmTranService.get(atmTranCriteria));
             }
+            Set<RvFlow> rvFlowKeySet = Collections.synchronizedSet(new HashSet<>());
+            for(AtmTran a : atmTrans){
+                RvFlowCriteria rvFlowCriteria = new RvFlowCriteria();
+                rvFlowCriteria.or().andAtmEqualTo(a.getPk());
+                rvFlowKeySet.addAll(new HashSet<>(rvFlowService.get(rvFlowCriteria)));
+            }
+
+            List<Application> applicationList = new ArrayList<>();
+            for(RvFlow r : rvFlowKeySet){
+                ApplicationCriteria applicationCriteria = new ApplicationCriteria();
+                applicationCriteria.or().andPtrEqualTo(r.getPk());
+                applicationList.addAll(applicationService.get(applicationCriteria,page,row));
+            }
+            return applicationList;
         };
     }
 
     @RequestMapping(value = "add",method = RequestMethod.POST)
     public @ResponseBody
     Callable<String> addApplication(String rv,String comment,HttpSession session)throws Exception{
-        return new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                String uid = (String) session.getAttribute("currentUser");
-                String uniqueID = UUID.randomUUID().toString().substring(0,8);
-                Application application = new Application();
-                application.setApPk(uniqueID);
-                application.setRvPk(rv);
-                application.setApActor(uid);
-                application.setApComment(comment);
-                application.setApDate(new Date());
-                application.setPtr("");
-                try {
-                    applicationService.insert(application);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return "false";
-                }
-                return "true";
+        return () -> {
+            String uid = (String) session.getAttribute("currentUser");
+            String uniqueID = UUID.randomUUID().toString().substring(0,8);
+            Application application = new Application();
+            application.setApPk(uniqueID);
+            application.setRvPk(rv);
+            application.setApActor(uid);
+            application.setApComment(comment);
+            application.setApDate(new Date());
+            application.setPtr("");
+            try {
+                applicationService.insert(application);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return "false";
             }
+            return "true";
         };
     }
 
     @RequestMapping(value = "upc",method = RequestMethod.POST)
     public @ResponseBody
     Callable<String> updateComment(String ap,String comment)throws Exception{
-        return new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                Application application = new Application();
-                application.setApComment(comment);
-                application.setApPk(ap);
-                return Integer.toString(applicationService.update(application));
-            }
+        return () -> {
+            Application application = new Application();
+            application.setApComment(comment);
+            application.setApPk(ap);
+            return Integer.toString(applicationService.update(application));
         };
     }
 
     @RequestMapping(value = "ups",method = RequestMethod.POST)
     public @ResponseBody
     Callable<String> updateStat(String pk,String ptr)throws Exception{
-        return new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                Application application = new Application();
-                application.setApPk(pk);
-                application.setPtr(ptr);
-                return Integer.toString(applicationService.update(application));
-            }
+        return () -> {
+            Application application = new Application();
+            application.setApPk(pk);
+            application.setPtr(ptr);
+            return Integer.toString(applicationService.update(application));
         };
     }
     @RequestMapping(value = "addToFlow",method = RequestMethod.POST)
     public @ResponseBody
     String addToRvFlow(String app) throws Exception {
-        //应该交由判定机构来做
+        //let the Arbitrator
         Application application = applicationService.getByPk(app);
         if(application == null || application.getPtr() != null)return "error";
         RvFlowCriteria rvFlowCriteria = new RvFlowCriteria();
@@ -162,12 +142,7 @@ public class ApplicationController {
     @RequestMapping(value = "del",method = RequestMethod.POST)
     public @ResponseBody
     Callable<String> deleteApplication(String pk)throws Exception{
-        return new Callable<String>() {
-            @Override
-            public String call() throws Exception {
-                return Integer.toString(applicationService.delete(pk));
-            }
-        };
+        return () -> Integer.toString(applicationService.delete(pk));
     }
 
     @RequestMapping(value = "pass",method = RequestMethod.POST)
