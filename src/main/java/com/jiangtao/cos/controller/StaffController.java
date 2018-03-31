@@ -1,48 +1,35 @@
 package com.jiangtao.cos.controller;
 
-import com.jiangtao.cos.pojo.Staff;
-import com.jiangtao.cos.pojo.StaffCriteria;
+import com.jiangtao.cos.pojo.*;
+import com.jiangtao.cos.service.DepartmentService;
+import com.jiangtao.cos.service.OfficeService;
+import com.jiangtao.cos.service.PositionService;
 import com.jiangtao.cos.service.StaffService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+
+import java.util.*;
+import java.util.concurrent.Callable;
 
 @RestController
 @RequestMapping("staff")
+@CrossOrigin(origins = "http://localhost:3000")
 public class StaffController {
     @Autowired
     private StaffService staffService;
 
-//    @RequestMapping("test")
-//    public @ResponseBody
-//    String addStaff(String name, String email, String birthday,String phone,String gender) throws Exception {
-//        String uniqueID = UUID.randomUUID().toString().substring(0,8);
-//        Date date = new SimpleDateFormat("yyyy-mm-dd").parse(birthday);
-//        Staff staff = new Staff();
-//        staff.setBirthday(date);
-//        staff.setEmail(email);
-//        if(gender.equals("female")){
-//            staff.setGender(new Boolean(false));
-//        }else {
-//            staff.setGender(new Boolean(true));
-//        }
-//        staff.setId(uniqueID);
-//        staff.setName(name);
-//        staff.setPhone(phone);
-//        staff.setStatus((byte) 0);
-//        staffService.insert(staff);
-//        return "{msg:success}";
-//    }
+    @Autowired
+    private OfficeService officeService;
 
-    @RequestMapping(value = "get",method = RequestMethod.POST)
+    @Autowired
+    private DepartmentService departmentService;
+
+    @Autowired
+    private PositionService positionService;
+
+    @RequestMapping(value = "staffInfo",method = RequestMethod.POST)
     public @ResponseBody
     List<Staff> getStaff() throws Exception {
         StaffCriteria staffCriteria = new StaffCriteria();
@@ -52,13 +39,58 @@ public class StaffController {
 
     @RequestMapping(value = "login",method = RequestMethod.POST)
     public @ResponseBody
-    Staff login(String uid, String password, HttpSession session)throws Exception{
+    Staff login(@RequestBody Map request, HttpSession session)throws Exception{
+        String uid = (String) request.get("userid");
+        String pwd = (String) request.get("passwd");
         Staff staff = staffService.getByPk(uid);
-        if(staff!=null && staff.getPassword().equals(password)){
+        if(staff!=null && staff.getPassword().equals(pwd)){
             session.setAttribute("currentUser",staff.getId());
             return staff;
         }else return null;
     }
 
+    @RequestMapping(value = "getOfficeView")
+    public @ResponseBody
+    Callable<List<OfficeInfoView>> getAllOfficeViews(){
+        return () -> {
+            OfficeCriteria officeCriteria = new OfficeCriteria();
+            officeCriteria.or().andExpiredDateGreaterThan(new Date());
+            List<Office> officeList = officeService.get(officeCriteria);
+            List<OfficeInfoView> officeInfoViewList = new ArrayList<>();
+            for(Office office : officeList){
+                Boolean flag = false;
+                for(OfficeInfoView officeInfoView: officeInfoViewList){
+                    if(officeInfoView.getDepartmentId().equals(office.getDepartment()) && officeInfoView.getPositionId().equals(office.getPosi())){
+                        flag = true;
+                    }
+                }
+                if(!flag){
+                    OfficeInfoView infoView = new OfficeInfoView();
+                    infoView.setDepartmentId(office.getDepartment());
+                    infoView.setPositionId(office.getPosi());
+                    officeInfoViewList.add(infoView);
+                }
+            }
+            DepartmentCriteria departmentCriteria = new DepartmentCriteria();
+            departmentCriteria.or().andAddrIsNotNull();
+            List<Department> departmentList = departmentService.get(departmentCriteria);
+            PositionCriteria positionCriteria = new PositionCriteria();
+            positionCriteria.or().andPosiNameIsNotNull();
+            List<Position> positionList = positionService.get(positionCriteria);
+            for(OfficeInfoView officeInfoView : officeInfoViewList){
+                for(Department department: departmentList){
+                    if(department.getId().equals(officeInfoView.getDepartmentId())){
+                        officeInfoView.setDepartmentName(department.getName());
+                    }
+                }
+                for(Position position: positionList){
+                    if(position.getPosiPk().equals(officeInfoView.getPositionId())){
+                        officeInfoView.setPositionName(position.getPosiName());
+                    }
+                }
+            }
+            return officeInfoViewList;
+        };
+    }
 
 }

@@ -3,7 +3,7 @@ package com.jiangtao.cos.pojo;
 import java.io.Serializable;
 import java.util.Date;
 
-public class Office extends OfficeKey implements Serializable {
+public class Office extends OfficeKey implements Serializable{
     private Date initDate;
 
     private Date expiredDate;

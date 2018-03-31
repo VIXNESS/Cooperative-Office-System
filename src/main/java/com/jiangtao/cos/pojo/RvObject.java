@@ -7,7 +7,7 @@ public class RvObject implements Serializable {
 
     private String objName;
 
-    private Byte type;
+    private String type;
 
     private static final long serialVersionUID = 1L;
 
@@ -27,12 +27,12 @@ public class RvObject implements Serializable {
         this.objName = objName == null ? null : objName.trim();
     }
 
-    public Byte getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(Byte type) {
-        this.type = type;
+    public void setType(String type) {
+        this.type = type == null ? null : type.trim();
     }
 
     @Override

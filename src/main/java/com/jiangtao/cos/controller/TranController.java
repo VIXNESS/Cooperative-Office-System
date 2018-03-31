@@ -6,6 +6,7 @@ import com.jiangtao.cos.service.RvFlowService;
 import com.jiangtao.cos.service.RvObjectService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -19,6 +20,7 @@ import static com.jiangtao.cos.service.RvFlowService.TAIL;
 
 @Controller
 @RequestMapping("trn")
+@CrossOrigin(origins = "http://localhost:3000")
 public class TranController {
 
     @Autowired
@@ -30,22 +32,23 @@ public class TranController {
 
     @RequestMapping("addObj")
     public @ResponseBody
-    String addRvObj(String name,int type) throws Exception {
-        String uniqueID = UUID.randomUUID().toString().substring(0,8);
+    String addRvObj(String name,String type) throws Exception {
         RvObject rvObject = new RvObject();
         rvObject.setObjName(name);
-        rvObject.setType((byte) type);
+        rvObject.setType(type);
+        rvObject.setObjPk(UUID.randomUUID().toString().substring(0,8));
         return Integer.toString(rvObjectService.insert(rvObject));
     }
 
 
     @RequestMapping("updObj")
     public @ResponseBody
-    String updateRvObj(String id,String name) throws Exception {
+    String updateRvObj(String id,String name,String type){
         if(id == null||id.equals("")) return "null";
         RvObject rvObject = new RvObject();
         if(!(name == null || name.equals(""))) rvObject.setObjName(name);
         rvObject.setObjPk(id);
+        if(!(type == null || type.equals(""))) rvObject.setType(type);
         return Integer.toString(rvObjectService.update(rvObject));
     }
 
@@ -132,15 +135,15 @@ public class TranController {
         return Integer.toString(rvFlowService.delete(pk));
     }
 
-    @RequestMapping("getAtmByPsi")
+    @RequestMapping("getAtms")
     public @ResponseBody
-    Callable<List<AtmTran>> getAtm(int position,int page,int row){
+    Callable<List<AtmTran>> getAllAtm(String department, int position){
         return new Callable<List<AtmTran>>() {
             @Override
             public List<AtmTran> call() throws Exception {
                 AtmTranCriteria atmTranCriteria = new AtmTranCriteria();
-                atmTranCriteria.or().andRvPosiEqualTo((byte) position);
-                return atmTranService.get(atmTranCriteria,page,row);
+                atmTranCriteria.or().andPkIsNotNull();
+                return atmTranService.get(atmTranCriteria);
             }
         };
     }
@@ -161,7 +164,7 @@ public class TranController {
 
     @RequestMapping("getAtmByOfc")
     public @ResponseBody
-    Callable<List<AtmTran>> getAtmByDepartment(String department,int position,int page,int row){
+    Callable<List<AtmTran>> getAtmByOffice(String department,int position,int page,int row){
         return new Callable<List<AtmTran>>() {
             @Override
             public List<AtmTran> call() throws Exception {

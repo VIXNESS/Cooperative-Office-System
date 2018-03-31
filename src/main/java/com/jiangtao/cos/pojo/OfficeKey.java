@@ -3,11 +3,11 @@ package com.jiangtao.cos.pojo;
 import java.io.Serializable;
 
 public class OfficeKey implements Serializable {
-    private String staff;
+    protected String staff;
 
-    private String department;
+    protected String department;
 
-    private Byte posi;
+    protected Byte posi;
 
     private static final long serialVersionUID = 1L;
 

@@ -4,7 +4,7 @@
   <resultMap id="BaseResultMap" type="com.jiangtao.cos.pojo.RvObject">
     <id column="obj_pk" jdbcType="CHAR" property="objPk" />
     <result column="obj_name" jdbcType="VARCHAR" property="objName" />
-    <result column="type" jdbcType="TINYINT" property="type" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -100,7 +100,7 @@
   <insert id="insert" parameterType="com.jiangtao.cos.pojo.RvObject">
     insert into rv_object (obj_pk, obj_name, type
       )
-    values (#{objPk,jdbcType=CHAR}, #{objName,jdbcType=VARCHAR}, #{type,jdbcType=TINYINT}
+    values (#{objPk,jdbcType=CHAR}, #{objName,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="com.jiangtao.cos.pojo.RvObject">
@@ -124,7 +124,7 @@
         #{objName,jdbcType=VARCHAR},
       </if>
       <if test="type != null">
-        #{type,jdbcType=TINYINT},
+        #{type,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -144,7 +144,7 @@
         obj_name = #{record.objName,jdbcType=VARCHAR},
       </if>
       <if test="record.type != null">
-        type = #{record.type,jdbcType=TINYINT},
+        type = #{record.type,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -155,7 +155,7 @@
     update rv_object
     set obj_pk = #{record.objPk,jdbcType=CHAR},
       obj_name = #{record.objName,jdbcType=VARCHAR},
-      type = #{record.type,jdbcType=TINYINT}
+      type = #{record.type,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -167,7 +167,7 @@
         obj_name = #{objName,jdbcType=VARCHAR},
       </if>
       <if test="type != null">
-        type = #{type,jdbcType=TINYINT},
+        type = #{type,jdbcType=VARCHAR},
       </if>
     </set>
     where obj_pk = #{objPk,jdbcType=CHAR}
@@ -175,7 +175,7 @@
   <update id="updateByPrimaryKey" parameterType="com.jiangtao.cos.pojo.RvObject">
     update rv_object
     set obj_name = #{objName,jdbcType=VARCHAR},
-      type = #{type,jdbcType=TINYINT}
+      type = #{type,jdbcType=VARCHAR}
     where obj_pk = #{objPk,jdbcType=CHAR}
   </update>
   <select id="selectByExampleWithRowbounds" parameterType="com.jiangtao.cos.pojo.RvObjectCriteria" resultMap="BaseResultMap">

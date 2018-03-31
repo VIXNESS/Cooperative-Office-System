@@ -6,6 +6,12 @@ import com.jiangtao.cos.pojo.RvObjectCriteria;
 import java.util.List;
 
 public interface RvObjectService {
+    /**
+     *
+     * @param rvObjectCriteria
+     * @return RvObject list
+     * @throws Exception
+     */
     List<RvObject> get(RvObjectCriteria rvObjectCriteria)throws Exception;
     List<RvObject> get(RvObjectCriteria rvObjectCriteria,int page, int row)throws Exception;
     RvObject getByPk(String pk);

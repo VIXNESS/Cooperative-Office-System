@@ -1,21 +1,25 @@
 package com.jiangtao.cos.controller;
 
+import com.jiangtao.cos.arbitrator.FlowArbitrator;
+import com.jiangtao.cos.pojo.Application;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.concurrent.Callable;
+
 @Controller
 @RequestMapping("test")
+@CrossOrigin(origins = "http://localhost:3000")
 public class TestController {
+    @Autowired
+    FlowArbitrator flowArbitrator;
+
     @RequestMapping("foo")
     public @ResponseBody
-    String test(Byte a){
-        if(a == null) return "-1";
-        return Integer.toString(a);
-    }
-    @RequestMapping("bar")
-    public @ResponseBody
-    String test(){
-        return Integer.toString(100);
+    Callable<String> test(){
+        return () -> "success";
     }
 }

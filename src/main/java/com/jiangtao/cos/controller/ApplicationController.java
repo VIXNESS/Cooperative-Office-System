@@ -13,6 +13,7 @@ import java.util.concurrent.Callable;
 
 @Controller
 @RequestMapping("app")
+@CrossOrigin(origins = "http://localhost:3000")
 public class ApplicationController {
     @Autowired
     private ApplicationService applicationService;

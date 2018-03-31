@@ -5,6 +5,7 @@ import com.jiangtao.cos.pojo.LogCriteria;
 import com.jiangtao.cos.service.LogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpSession;
@@ -15,6 +16,7 @@ import java.util.concurrent.Callable;
 
 @Controller
 @RequestMapping("log")
+@CrossOrigin(origins = "http://localhost:3000")
 public class LogController {
     @Autowired
     private LogService logService;
