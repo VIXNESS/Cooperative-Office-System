@@ -1,16 +1,15 @@
 package com.jiangtao.cos.controller;
 
 import com.jiangtao.cos.pojo.*;
-import com.jiangtao.cos.service.AtmTranService;
-import com.jiangtao.cos.service.RvFlowService;
-import com.jiangtao.cos.service.RvObjectService;
+import com.jiangtao.cos.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
@@ -25,10 +24,18 @@ public class TranController {
 
     @Autowired
     private RvFlowService rvFlowService;
+
     @Autowired
     private RvObjectService rvObjectService;
+
     @Autowired
     private AtmTranService atmTranService;
+
+    @Autowired
+    private DepartmentService departmentService;
+
+    @Autowired
+    private PositionService positionService;
 
     @RequestMapping("addObj")
     public @ResponseBody
@@ -129,13 +136,32 @@ public class TranController {
         return Integer.toString(rvFlowService.delete(pk));
     }
 
-    @RequestMapping("getAtms")
+    @RequestMapping(value = "getAtms")
     public @ResponseBody
-    Callable<List<AtmTran>> getAllAtm(){
+    Callable<List<AtmView>> getAllAtm(Integer page,Integer row){
         return () -> {
             AtmTranCriteria atmTranCriteria = new AtmTranCriteria();
             atmTranCriteria.or().andPkIsNotNull();
-            return atmTranService.get(atmTranCriteria);
+            List<AtmTran> atmTranList = atmTranService.get(atmTranCriteria,page,row);
+            List<AtmView> atmViewList = new ArrayList<>();
+            for(AtmTran a: atmTranList){
+                AtmView temp = new AtmView();
+                temp.setAtmTran(a);
+                temp.setDpm(departmentService.getByPk(a.getRvDp()).getName());
+                temp.setPosi(positionService.getByPk(a.getRvPosi()).getPosiName());
+                atmViewList.add(temp);
+            }
+            return atmViewList;
+        };
+    }
+
+    @RequestMapping("countAtm")
+    public @ResponseBody
+    Callable<Long> countAtmTrans(){
+        return () -> {
+            AtmTranCriteria atmTranCriteria = new AtmTranCriteria();
+            atmTranCriteria.or().andPkIsNotNull();
+            return atmTranService.countAtms(atmTranCriteria) ;
         };
     }
 
@@ -163,7 +189,11 @@ public class TranController {
 
     @RequestMapping("addAtm")
     public @ResponseBody
-    String addAtm(String department,Byte position,String comment) throws Exception {
+    String addAtm(@RequestBody Map request) throws Exception {
+        String department = (String)request.get("d");
+        Integer rp = (Integer) request.get("p");
+        Byte position = rp.byteValue();
+        String comment = (String)request.get("c");
         if(department == null || department.equals("")) return "error";
         if(comment == null || comment.equals("")) return "error";
         if(position == null) return "error";

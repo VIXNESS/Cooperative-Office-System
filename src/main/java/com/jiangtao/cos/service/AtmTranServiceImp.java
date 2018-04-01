@@ -49,4 +49,9 @@ public class AtmTranServiceImp implements AtmTranService {
         return atmTranMapper.updateByPrimaryKeySelective(atmTran);
     }
 
+    @Override
+    public long countAtms(AtmTranCriteria atmTranCriteria) throws Exception {
+        return atmTranMapper.countByExample(atmTranCriteria);
+    }
+
 }

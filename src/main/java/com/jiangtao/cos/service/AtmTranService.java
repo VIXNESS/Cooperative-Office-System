@@ -63,4 +63,11 @@ public interface AtmTranService {
      * @throws Exception
      */
     int update(AtmTran atmTran)throws Exception;
+
+    /**
+     *
+     * @return count
+     * @throws Exception
+     */
+    long countAtms(AtmTranCriteria atmTranCriteria)throws Exception;
 }

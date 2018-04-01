@@ -35,4 +35,5 @@ public interface AtmTranMapper {
     int updateByPrimaryKeySelective(AtmTran record);
 
     int updateByPrimaryKey(AtmTran record);
+
 }
