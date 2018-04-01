@@ -140,6 +140,7 @@ public class TranController {
     public @ResponseBody
     Callable<List<AtmView>> getAllAtm(Integer page,Integer row){
         return () -> {
+            if(page == null || row == null) return null;
             AtmTranCriteria atmTranCriteria = new AtmTranCriteria();
             atmTranCriteria.or().andPkIsNotNull();
             List<AtmTran> atmTranList = atmTranService.get(atmTranCriteria,page,row);
@@ -207,32 +208,25 @@ public class TranController {
 
     @RequestMapping("updAtm")
     public @ResponseBody
-    String updateAtm(String pk,String comment,String department,Byte position) throws Exception {
-        if(pk == null || pk.equals("")) return "error";
-        AtmTran atmTran = null;
-        if(!(comment == null || comment.equals(""))){
-            if(atmTran == null) atmTran = new AtmTran();
-            atmTran.setAtmComment(comment);
-        }
-        if(!(department == null || department.equals(""))){
-            if(atmTran == null) atmTran = new AtmTran();
-            atmTran.setRvDp(department);
-        }
-        if(position != null){
-            if(atmTran == null) atmTran = new AtmTran();
-            atmTran.setRvPosi(position);
-        }
-        if(atmTran != null){
-            atmTran.setPk(pk);
-            return Integer.toString(atmTranService.update(atmTran));
-        }else {
-            return "error";
-        }
+    String updateAtm(@RequestBody Map request) throws Exception {
+        String pk = (String) request.get("pk");
+        String comment = (String) request.get("comment");
+        String department = (String) request.get("department");
+        Integer pp = (Integer) request.get("position");
+        if(pp == null || pk == null ||comment == null || department == null) return "error";
+        Byte position = pp.byteValue();
+        if(pk.equals("")) return "error";
+        AtmTran atmTran = atmTranService.getByPk(pk);
+        atmTran.setRvPosi(position);
+        atmTran.setRvDp(department);
+        if(!comment.equals("")) atmTran.setAtmComment(comment);
+        return Integer.toString(atmTranService.update(atmTran));
     }
 
     @RequestMapping("delAtm")
     public @ResponseBody
-    String deleteAtm(String pk) throws Exception {
+    String deleteAtm(@RequestBody Map request) throws Exception {
+        String pk = (String) request.get("pk");
         if(pk == null || pk.equals("")) return "error";
         return Integer.toString(atmTranService.delete(pk));
     }
