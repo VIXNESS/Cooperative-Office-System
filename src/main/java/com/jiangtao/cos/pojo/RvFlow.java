@@ -3,17 +3,17 @@ package com.jiangtao.cos.pojo;
 import java.io.Serializable;
 
 public class RvFlow implements Serializable {
-    private String pk;
+    protected String pk;
 
-    private String pre;
+    protected String pre;
 
-    private String suc;
+    protected String suc;
 
-    private String atm;
+    protected String atm;
 
-    private String obj;
+    protected String obj;
 
-    private static final long serialVersionUID = 1L;
+    protected static final long serialVersionUID = 1L;
 
     public String getPk() {
         return pk;

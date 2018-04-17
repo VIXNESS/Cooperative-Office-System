@@ -91,7 +91,17 @@ public class RvFlowServiceImp implements RvFlowService {
     }
 
     @Override
+    public int delete(RvFlowCriteria rvFlowCriteria) {
+        return rvFlowMapper.deleteByExample(rvFlowCriteria);
+    }
+
+    @Override
     public int update(RvFlow rvFlow){
-        return rvFlowMapper.updateByPrimaryKeySelective(rvFlow);
+        return rvFlowMapper.updateByPrimaryKey(rvFlow);
+    }
+
+    @Override
+    public int add(RvFlow rvFlow) throws Exception {
+        return rvFlowMapper.insert(rvFlow);
     }
 }

@@ -11,7 +11,9 @@ public interface RvFlowService {
     RvFlow getByPk(String pk);
     int insert(RvFlow rvFlow,String position);
     int delete(String pk)throws Exception;
+    int delete(RvFlowCriteria rvFlowCriteria);
     int update(RvFlow rvFlow);
+    int add(RvFlow rvFlow)throws Exception;
     String HEAD = "head";
     String MID = "mid";
     String TAIL = "tail";

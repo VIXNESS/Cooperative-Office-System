@@ -43,21 +43,11 @@ public class RvObjectServiceImp implements RvObjectService {
 
     @Override
     public int delete(RvObjectCriteria rvObjectCriteria) throws Exception {
-        List<RvObject> rvObjectList = rvObjectMapper.selectByExample(rvObjectCriteria);
-        RvFlowCriteria rvFlowCriteria;
-        for(RvObject r : rvObjectList){
-            rvFlowCriteria = new RvFlowCriteria();
-            rvFlowCriteria.or().andObjEqualTo(r.getObjPk());
-            rvFlowMapper.deleteByExample(rvFlowCriteria);
-        }
         return rvObjectMapper.deleteByExample(rvObjectCriteria);
     }
 
     @Override
     public int delete(String pk) throws Exception {
-        RvFlowCriteria rvFlowCriteria = new RvFlowCriteria();
-        rvFlowCriteria.or().andObjEqualTo(pk);
-        rvFlowMapper.deleteByExample(rvFlowCriteria);
         return rvObjectMapper.deleteByPrimaryKey(pk);
     }
 
