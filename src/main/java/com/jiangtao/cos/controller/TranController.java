@@ -4,11 +4,17 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.jiangtao.cos.pojo.*;
 import com.jiangtao.cos.service.*;
+import com.jiangtao.cos.utils.StorageFileNotFoundException;
+import com.jiangtao.cos.utils.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -40,7 +46,13 @@ public class TranController {
     private final String ASSETS = "D:\\Users\\Vix20\\IdeaProjects\\cos\\assets\\";
     //审批对象部分
 
-    @RequestMapping("addObj")
+    private final StorageService storageService;
+
+    @Autowired
+    public TranController(StorageService storageService) {
+        this.storageService = storageService;
+    }
+    @PostMapping("addObj")
     public @ResponseBody
     String addRvObj(@RequestBody Map request){
         String name = (String) request.get("name");
@@ -52,7 +64,7 @@ public class TranController {
         return Integer.toString(rvObjectService.insert(rvObject));
     }
 
-    @RequestMapping("updObj")
+    @PostMapping("updObj")
     public @ResponseBody
     String updateRvObj(@RequestBody Map request){
         String id = (String) request.get("id");
@@ -66,17 +78,21 @@ public class TranController {
         return Integer.toString(rvObjectService.update(rvObject));
     }
 
-    @RequestMapping("delObj")
+    @PostMapping("delObj")
     public @ResponseBody
     String deleteRvObj(@RequestBody Map request) throws Exception {
         String id = (String) request.get("id");
         RvFlowCriteria rvFlowCriteria = new RvFlowCriteria();
         rvFlowCriteria.or().andObjEqualTo(id);
         rvFlowService.delete(rvFlowCriteria);
+        File file = new File(ASSETS + id + ".json");
+        if(file.exists()){
+            file.delete();
+        }
         return Integer.toString(rvObjectService.delete(id));
     }
 
-    @RequestMapping("getObj")
+    @GetMapping("getObj")
     public @ResponseBody
     Callable<List<RvObject>> getRvObj(){
         return () -> {
@@ -86,7 +102,7 @@ public class TranController {
         };
     }
 
-    @RequestMapping("getObjPage")
+    @GetMapping("getObjPage")
     public @ResponseBody
     Callable<List<RvObject>> getRvObjPage(Integer page,Integer row){
         return () -> {
@@ -197,7 +213,7 @@ public class TranController {
         return "success";
     }
 
-    @RequestMapping("flowList")
+    @GetMapping("flowList")
     public @ResponseBody
     Callable<List<List<RvFlowView>>> getFlowList() throws Exception {
        return () -> {
@@ -233,7 +249,7 @@ public class TranController {
 
     //原子事物部分
 
-    @RequestMapping(value = "getAtms")
+    @GetMapping(value = "getAtms")
     public @ResponseBody
     Callable<List<AtmView>> getAllAtm(Integer page,Integer row){
         return () -> {
@@ -258,7 +274,7 @@ public class TranController {
         };
     }
 
-    @RequestMapping("countAtm")
+    @GetMapping("countAtm")
     public @ResponseBody
     Callable<Long> countAtmTrans(){
         return () -> {
@@ -268,7 +284,7 @@ public class TranController {
         };
     }
 
-    @RequestMapping("getAtmByDpm")
+    @GetMapping("getAtmByDpm")
     public @ResponseBody
     Callable<List<AtmTran>> getAtmByDepartment(String department){
         return () -> {
@@ -279,7 +295,7 @@ public class TranController {
         };
     }
 
-    @RequestMapping("getAtmByOfc")
+    @GetMapping("getAtmByOfc")
     public @ResponseBody
     Callable<List<AtmTran>> getAtmByOffice(String department,int position,int page,int row){
         return () -> {
@@ -290,7 +306,7 @@ public class TranController {
         };
     }
 
-    @RequestMapping("addAtm")
+    @PostMapping("addAtm")
     public @ResponseBody
     String addAtm(@RequestBody Map request) throws Exception {
         String department = (String)request.get("d");
@@ -308,7 +324,7 @@ public class TranController {
         return Integer.toString(atmTranService.insert(atmTran));
     }
 
-    @RequestMapping("updAtm")
+    @PostMapping("updAtm")
     public @ResponseBody
     String updateAtm(@RequestBody Map request) throws Exception {
         String pk = (String) request.get("pk");
@@ -325,7 +341,7 @@ public class TranController {
         return Integer.toString(atmTranService.update(atmTran));
     }
 
-    @RequestMapping("delAtm")
+    @PostMapping("delAtm")
     public @ResponseBody
     String deleteAtm(@RequestBody Map request) throws Exception {
         String pk = (String) request.get("pk");
@@ -334,7 +350,7 @@ public class TranController {
     }
 
     //杂项
-    @RequestMapping("addTep")
+    @PostMapping("addTep")
     public @ResponseBody
     String addTemplate(@RequestBody Map request){
         String objPk = (String) request.get("pk");
@@ -356,15 +372,14 @@ public class TranController {
         return "success";
     }
 
-    @RequestMapping("getTepByObj")
+    @GetMapping("getTepByObj")
     public @ResponseBody
-    Callable<String> getTemplateByObj(@RequestBody Map request){
+    Callable<String> getTemplateByObj(String obj){
         return () -> {
-            String objPk = (String) request.get("obj");
             try{
-                File file = new File(ASSETS + objPk + ".json");
+                File file = new File(ASSETS + obj + ".json");
                 if(!file.exists()){
-                    return null;
+                    return "null";
                 }else{
                     FileInputStream fileInputStream = new FileInputStream(file);
                     InputStreamReader reader = new InputStreamReader(fileInputStream,"UTF-8");
@@ -380,10 +395,11 @@ public class TranController {
                 e.printStackTrace();
                 return "error";
             }
+
         };
     }
 
-    @RequestMapping("getTps")
+    @GetMapping("getTps")
     public @ResponseBody
     Callable<List<TemplateView>> getTemplateList(){
         return () -> {
@@ -421,5 +437,47 @@ public class TranController {
         };
     }
 
+    @PostMapping("delTps")
+    public @ResponseBody
+    String deleteTemplateByObjPk(@RequestBody Map request){
+        String objPk = (String) request.get("pk");
+        try{
+            File file = new File(ASSETS + objPk + ".json");
+            if(!file.exists()){
+                return null;
+            }else{
+                file.delete();
+                return "success";
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            return "error";
+        }
+    }
+
+    @GetMapping("/files/{filename:.+}")
+    @ResponseBody
+    public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
+
+        Resource file = storageService.loadAsResource(filename);
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+    }
+
+    @PostMapping("/")
+    public String handleFileUpload(@RequestParam("file") MultipartFile file,
+                                   RedirectAttributes redirectAttributes) {
+
+        storageService.store(file);
+        redirectAttributes.addFlashAttribute("message",
+                "You successfully uploaded " + file.getOriginalFilename() + "!");
+
+        return "redirect:/";
+    }
+
+    @ExceptionHandler(StorageFileNotFoundException.class)
+    public ResponseEntity<?> handleStorageFileNotFound(StorageFileNotFoundException exc) {
+        return ResponseEntity.notFound().build();
+    }
 
 }

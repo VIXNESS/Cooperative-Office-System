@@ -1,8 +1,5 @@
 package com.jiangtao.cos.controller;
 
-import com.jiangtao.cos.arbitrator.FlowArbitrator;
-import com.jiangtao.cos.pojo.Application;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,9 +13,6 @@ import java.util.concurrent.Callable;
 @RequestMapping("test")
 @CrossOrigin(origins = "http://localhost:3000")
 public class TestController {
-    @Autowired
-    FlowArbitrator flowArbitrator;
-
     @RequestMapping("foo")
     public @ResponseBody
     Callable<String> test(@RequestBody Map request){
