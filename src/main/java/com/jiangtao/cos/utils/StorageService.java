@@ -3,6 +3,7 @@ package com.jiangtao.cos.utils;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
@@ -11,6 +12,8 @@ public interface StorageService {
     void init();
 
     void store(MultipartFile file);
+
+    void inputStreamStore(InputStream inputStream, String fileName);
 
     Stream<Path> loadAll();
 

@@ -14,7 +14,7 @@ public class Staff implements Serializable {
 
     private String phone;
 
-    private Boolean gender;
+    private byte[] gender;
 
     private Byte status;
 
@@ -62,11 +62,11 @@ public class Staff implements Serializable {
         this.phone = phone == null ? null : phone.trim();
     }
 
-    public Boolean getGender() {
+    public byte[] getGender() {
         return gender;
     }
 
-    public void setGender(Boolean gender) {
+    public void setGender(byte[] gender) {
         this.gender = gender;
     }
 

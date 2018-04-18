@@ -2,8 +2,8 @@ spring:
   profiles:
     active: dev
   datasource:
-    driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/COS?useUnicode=true&characterEncoding=utf-8&useLegacyDatetimeCode=false&serverTimezone=UTC&useSSL=false
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://localhost:3306/cos?verifyServerCertificate=false&useSSL=false&useUnicode=true&characterEncoding=utf-8&useLegacyDatetimeCode=false&serverTimezone=UTC
     username: root
     password: jt1996515
     tomcat:
@@ -22,7 +22,7 @@ spring:
 server:
   port: 8080
 pagehelper:
-    helperDialect: mysql
+    helperDialect: mariadb
     reasonable: true
     supportMethodsArguments: true
     params: count=countSql

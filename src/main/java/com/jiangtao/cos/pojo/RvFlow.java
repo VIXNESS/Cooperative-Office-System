@@ -13,7 +13,7 @@ public class RvFlow implements Serializable {
 
     protected String obj;
 
-    protected static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     public String getPk() {
         return pk;

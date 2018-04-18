@@ -4,19 +4,15 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.jiangtao.cos.pojo.*;
 import com.jiangtao.cos.service.*;
-import com.jiangtao.cos.utils.StorageFileNotFoundException;
 import com.jiangtao.cos.utils.StorageService;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -43,15 +39,12 @@ public class TranController {
     @Autowired
     private PositionService positionService;
 
+    @Autowired
+    private StorageService storageService;
+
     private final String ASSETS = "D:\\Users\\Vix20\\IdeaProjects\\cos\\assets\\";
     //审批对象部分
 
-    private final StorageService storageService;
-
-    @Autowired
-    public TranController(StorageService storageService) {
-        this.storageService = storageService;
-    }
     @PostMapping("addObj")
     public @ResponseBody
     String addRvObj(@RequestBody Map request){
@@ -349,26 +342,14 @@ public class TranController {
         return Integer.toString(atmTranService.delete(pk));
     }
 
-    //杂项
+//    模板
     @PostMapping("addTep")
     public @ResponseBody
     String addTemplate(@RequestBody Map request){
         String objPk = (String) request.get("pk");
         String jsonStr = (String) request.get("data");
-        try {
-            File file = new File(ASSETS + objPk + ".json");
-            if(!file.exists()){
-                file.createNewFile();
-            }
-            FileOutputStream fileOutputStream = new FileOutputStream(file);
-            OutputStreamWriter writer = new OutputStreamWriter(fileOutputStream);
-            writer.write(jsonStr);
-            writer.close();
-            fileOutputStream.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "error";
-        }
+        InputStream stream = new ByteArrayInputStream(jsonStr.getBytes(StandardCharsets.UTF_8));
+        storageService.inputStreamStore(stream,objPk + ".json");
         return "success";
     }
 
@@ -376,26 +357,18 @@ public class TranController {
     public @ResponseBody
     Callable<String> getTemplateByObj(String obj){
         return () -> {
+            Resource file;
             try{
-                File file = new File(ASSETS + obj + ".json");
-                if(!file.exists()){
-                    return "null";
-                }else{
-                    FileInputStream fileInputStream = new FileInputStream(file);
-                    InputStreamReader reader = new InputStreamReader(fileInputStream,"UTF-8");
-                    StringBuffer stringBuffer = new StringBuffer();
-                    while(reader.ready()){
-                        stringBuffer.append((char)reader.read());
-                    }
-                    reader.close();
-                    fileInputStream.close();
-                    return stringBuffer.toString();
-                }
+                file = storageService.loadAsResource(obj + ".json");
             }catch (Exception e){
                 e.printStackTrace();
-                return "error";
+                return "null";
             }
 
+            StringWriter writer = new StringWriter();
+            IOUtils.copy(file.getInputStream(), writer, "UTF-8");
+            String json = writer.toString();
+            return json;
         };
     }
 
@@ -408,29 +381,28 @@ public class TranController {
             List<RvObject> rvObjectList = rvObjectService.get(rvObjectCriteria);
 
             List<TemplateView> templateViewList = new ArrayList<>();
-            FileInputStream fileInputStream;
             InputStreamReader inputStreamReader;
             StringBuffer stringBuffer;
             TemplateView templateView;
-            File file;
             for(RvObject rvObject : rvObjectList){
                 templateView = new TemplateView();
                 templateView.setObjPk(rvObject.getObjPk());
                 templateView.setObjName(rvObject.getObjName());
-                file = new File(ASSETS + rvObject.getObjPk() + ".json");
-                if(!file.exists()){
-                    templateView.setData("[]");
-                }else {
-                    fileInputStream = new FileInputStream(file);
-                    inputStreamReader = new InputStreamReader(fileInputStream);
+                Resource resource;
+                try {
+                    resource = storageService.loadAsResource(rvObject.getObjPk() + ".json");
+                    inputStreamReader = new InputStreamReader(resource.getInputStream());
                     stringBuffer = new StringBuffer();
                     while(inputStreamReader.ready()){
                         stringBuffer.append((char)inputStreamReader.read());
                     }
                     inputStreamReader.close();
-                    fileInputStream.close();
                     templateView.setData(stringBuffer.toString());
+
+                }catch (Exception e){
+                    templateView.setData("[]");
                 }
+
                 templateViewList.add(templateView);
             }
             return templateViewList;
@@ -453,31 +425,6 @@ public class TranController {
             e.printStackTrace();
             return "error";
         }
-    }
-
-    @GetMapping("/files/{filename:.+}")
-    @ResponseBody
-    public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
-
-        Resource file = storageService.loadAsResource(filename);
-        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
-                "attachment; filename=\"" + file.getFilename() + "\"").body(file);
-    }
-
-    @PostMapping("/")
-    public String handleFileUpload(@RequestParam("file") MultipartFile file,
-                                   RedirectAttributes redirectAttributes) {
-
-        storageService.store(file);
-        redirectAttributes.addFlashAttribute("message",
-                "You successfully uploaded " + file.getOriginalFilename() + "!");
-
-        return "redirect:/";
-    }
-
-    @ExceptionHandler(StorageFileNotFoundException.class)
-    public ResponseEntity<?> handleStorageFileNotFound(StorageFileNotFoundException exc) {
-        return ResponseEntity.notFound().build();
     }
 
 }

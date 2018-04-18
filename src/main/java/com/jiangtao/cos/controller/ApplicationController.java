@@ -2,10 +2,16 @@ package com.jiangtao.cos.controller;
 
 import com.jiangtao.cos.pojo.*;
 import com.jiangtao.cos.service.*;
+import com.jiangtao.cos.utils.StorageFileNotFoundException;
+import com.jiangtao.cos.utils.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpSession;
 import java.util.*;
@@ -30,16 +36,18 @@ public class ApplicationController {
     @Autowired
     private RvFlowService rvFlowService;
 
-    @RequestMapping(value = "pk",method = RequestMethod.POST)
+    @Autowired
+    private  StorageService storageService;
+
+    @GetMapping("pk")
     public @ResponseBody
     Callable<Application> getApplicationByPk(String pk){
         return () -> applicationService.getByPk(pk);
     }
 
-    @RequestMapping(value = "usr", method = RequestMethod.POST)
+    @GetMapping( "usr")
     public @ResponseBody
-    Callable<List<Application>> getApplicationsByUser(HttpSession session,int page,int row){
-        String uid = (String) session.getAttribute("currentUser");
+    Callable<List<Application>> getApplicationsByUser(String uid,int page,int row){
         return () -> {
             ApplicationCriteria applicationCriteria = new ApplicationCriteria();
             applicationCriteria.or()
@@ -126,6 +134,7 @@ public class ApplicationController {
             return Integer.toString(applicationService.update(application));
         };
     }
+
     @RequestMapping(value = "addToFlow",method = RequestMethod.POST)
     public @ResponseBody
     String addToRvFlow(String app) throws Exception {
@@ -139,6 +148,7 @@ public class ApplicationController {
         return Integer.toString(applicationService.update(application));
 
     }
+
     @RequestMapping(value = "del",method = RequestMethod.POST)
     public @ResponseBody
     Callable<String> deleteApplication(String pk)throws Exception{
@@ -156,5 +166,26 @@ public class ApplicationController {
         if(rvFlow.getSuc() == null || rvFlow.getSuc().equals("")) return "finished";
         application.setPtr(rvFlow.getSuc());
         return Integer.toString(applicationService.update(application));
+    }
+
+
+    @GetMapping("files/{filename:.+}")
+    @ResponseBody
+    public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
+        Resource file = storageService.loadAsResource(filename);
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+    }
+
+    @PostMapping("/filesUpload")
+    @ResponseBody
+    public ResponseEntity<?> handleFileUpload(@RequestParam("file") MultipartFile file) {
+        storageService.store(file);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @ExceptionHandler(StorageFileNotFoundException.class)
+    public ResponseEntity<?> handleStorageFileNotFound(StorageFileNotFoundException exc) {
+        return ResponseEntity.notFound().build();
     }
 }

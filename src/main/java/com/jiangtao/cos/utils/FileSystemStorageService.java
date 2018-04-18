@@ -20,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class FileSystemStorageService implements StorageService {
 
-    private final Path rootLocation;
+    protected final Path rootLocation;
 
     @Autowired
     public FileSystemStorageService(StorageProperties properties) {
@@ -46,6 +46,16 @@ public class FileSystemStorageService implements StorageService {
         }
         catch (IOException e) {
             throw new StorageException("Failed to store file " + filename, e);
+        }
+    }
+
+    @Override
+    public void inputStreamStore(InputStream inputStream,String fileName) {
+        try {
+            Files.copy(inputStream, this.rootLocation.resolve(fileName),
+                    StandardCopyOption.REPLACE_EXISTING);
+        }catch (IOException e){
+            throw new StorageException("Failed to store file " + fileName, e);
         }
     }
 
