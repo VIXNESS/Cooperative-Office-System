@@ -21,7 +21,7 @@ import java.util.concurrent.Callable;
 
 @Controller
 @RequestMapping("trn")
-@CrossOrigin(origins = "http://localhost:3000")
+//@CrossOrigin(origins = "http://localhost:3000")
 public class TranController {
 
     @Autowired
@@ -206,38 +206,86 @@ public class TranController {
         return "success";
     }
 
+    /**
+     *
+     * @return
+     *  FlowList Object: [ flowView, flowView, flowView],
+     *  FlowView Object: {
+     *    primary key: pk,
+     *    Forerunner : pre,
+     *    successor : suc,
+     *    atomic transaction: atm,
+     *    review object primary key: obj,
+     *    review object name: objName
+     *  },
+     *  Atm Object: {
+     *      primary key: pk,
+     *      position name: pName,
+     *      department name: department,
+     *      atomic transaction comment: atmComment
+     *  }
+     */
+    public List<RvFlowView> makeRvFlowViewList(List<RvFlow> rvFlowList) throws Exception {
+        List<RvFlowView> rvFlowViews = new ArrayList<>();
+        RvFlowView flowView;
+        for(RvFlow rvFlow: rvFlowList){
+            AtmTran atmTran = atmTranService.getByPk(rvFlow.getAtm());
+            flowView = new RvFlowView();
+            flowView.setObjName(rvObjectService.getByPk(rvFlow.getObj()).getObjName());
+            flowView.setObj(rvFlow.getObj());
+            flowView.setPk(rvFlow.getPk());
+            flowView.setSuc(rvFlow.getSuc());
+            flowView.setPre(rvFlow.getPre());
+            flowView.setAtm("{ \"atmPk\": \"" + rvFlow.getAtm() + "\", \"pName\": \"" + positionService.getByPk(atmTran.getRvPosi()).getPosiName() + "\", \"dName\": \"" + departmentService.getByPk(atmTran.getRvDp()).getName() + "\" }");
+            flowView.setAtmComment(atmTran.getAtmComment());
+            rvFlowViews.add(flowView);
+        }
+        return rvFlowViews;
+    }
+
+
+    /**
+     * @return All FlowList : [ flowViewListObject, flowViewListObject, flowViewListObject ...]
+     */
     @GetMapping("flowList")
     public @ResponseBody
-    Callable<List<List<RvFlowView>>> getFlowList() throws Exception {
+    Callable<List<List<RvFlowView>>> getFlowList() {
        return () -> {
            RvObjectCriteria rvObjectCriteria = new RvObjectCriteria();
            rvObjectCriteria.or().andObjPkIsNotNull();
-           List<RvObject> rvObjectList = rvObjectService.get(rvObjectCriteria);
+           List<RvObject> rvObjectList = rvObjectService.get(rvObjectCriteria);// get all RvObject.
+
            List<List<RvFlowView>> rvFlowViewsList = new ArrayList<>();
            for(RvObject rvObject : rvObjectList){
-               RvFlowCriteria rvc = new RvFlowCriteria();
-               rvc.or().andObjEqualTo(rvObject.getObjPk());
-               List<RvFlow> rvFlowList = rvFlowService.get(rvc);
-               List<RvFlowView> rvFlowViews = new ArrayList<>();
-               RvFlowView flowView;
-               for(RvFlow rvFlow: rvFlowList){
-                   AtmTran atmTran = atmTranService.getByPk(rvFlow.getAtm());
-                   flowView = new RvFlowView();
-                   flowView.setObjName(rvObjectService.getByPk(rvFlow.getObj()).getObjName());
-                   flowView.setObj(rvFlow.getObj());
-                   flowView.setPk(rvFlow.getPk());
-                   flowView.setSuc(rvFlow.getSuc());
-                   flowView.setPre(rvFlow.getPre());
-                   flowView.setAtm("{ \"atmPk\": \"" + rvFlow.getAtm() + "\", \"pName\": \"" + positionService.getByPk(atmTran.getRvPosi()).getPosiName() + "\", \"dName\": \"" + departmentService.getByPk(atmTran.getRvDp()).getName() + "\" }");
-                   flowView.setAtmComment(atmTran.getAtmComment());
-                   rvFlowViews.add(flowView);
-               }
-               rvFlowViewsList.add(rvFlowViews);
+               RvFlowCriteria rvFlowCriteria = new RvFlowCriteria();
+               rvFlowCriteria.or().andObjEqualTo(rvObject.getObjPk());
+               List<RvFlow> rvFlowList = rvFlowService.get(rvFlowCriteria);// get rvFlowList(unserializable,it's a block of flowViews) from a RvObject.
+
+               rvFlowViewsList.add(makeRvFlowViewList(rvFlowList));// make rvFlowList into rvFlowViewList.
            }
-           return rvFlowViewsList;
+           return rvFlowViewsList;//let frontend to serialize flowViewLists
        };
     }
 
+    @GetMapping("getFlowByObj")
+    public @ResponseBody
+    Callable<List<RvFlowView>> getFlowListByObjPk(String objPk){
+        return () ->{
+          RvFlowCriteria rvFlowCriteria = new RvFlowCriteria();
+          rvFlowCriteria.or().andObjEqualTo(objPk);
+          return makeRvFlowViewList(rvFlowService.get(rvFlowCriteria));
+        };
+    }
+
+    @GetMapping("countFlowByObj")
+    public @ResponseBody
+    Callable<Long> countFlowsByObj(String objPk){
+        return () -> {
+          RvFlowCriteria rvFlowCriteria = new RvFlowCriteria();
+          rvFlowCriteria.or().andObjEqualTo(objPk);
+          return rvFlowService.count(rvFlowCriteria);
+        };
+    }
 
 
     //原子事物部分
@@ -384,11 +432,11 @@ public class TranController {
             InputStreamReader inputStreamReader;
             StringBuffer stringBuffer;
             TemplateView templateView;
+            Resource resource;
             for(RvObject rvObject : rvObjectList){
                 templateView = new TemplateView();
                 templateView.setObjPk(rvObject.getObjPk());
                 templateView.setObjName(rvObject.getObjName());
-                Resource resource;
                 try {
                     resource = storageService.loadAsResource(rvObject.getObjPk() + ".json");
                     inputStreamReader = new InputStreamReader(resource.getInputStream());
@@ -414,17 +462,15 @@ public class TranController {
     String deleteTemplateByObjPk(@RequestBody Map request){
         String objPk = (String) request.get("pk");
         try{
-            File file = new File(ASSETS + objPk + ".json");
-            if(!file.exists()){
-                return null;
-            }else{
-                file.delete();
-                return "success";
+            Resource resource = storageService.loadAsResource(objPk + ".json");
+            if(resource.exists()){
+                resource.getFile().delete();
             }
         }catch (Exception e){
             e.printStackTrace();
             return "error";
         }
+        return "success";
     }
 
 }

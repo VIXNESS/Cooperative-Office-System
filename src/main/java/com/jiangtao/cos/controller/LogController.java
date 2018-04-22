@@ -16,7 +16,7 @@ import java.util.concurrent.Callable;
 
 @Controller
 @RequestMapping("log")
-@CrossOrigin(origins = "http://localhost:3000")
+//@CrossOrigin(origins = "http://localhost:3000")
 public class LogController {
     @Autowired
     private LogService logService;

@@ -104,4 +104,9 @@ public class RvFlowServiceImp implements RvFlowService {
     public int add(RvFlow rvFlow) throws Exception {
         return rvFlowMapper.insert(rvFlow);
     }
+
+    @Override
+    public Long count(RvFlowCriteria rvFlowCriteria) throws Exception {
+        return rvFlowMapper.countByExample(rvFlowCriteria);
+    }
 }

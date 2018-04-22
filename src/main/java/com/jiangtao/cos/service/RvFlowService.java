@@ -14,6 +14,7 @@ public interface RvFlowService {
     int delete(RvFlowCriteria rvFlowCriteria);
     int update(RvFlow rvFlow);
     int add(RvFlow rvFlow)throws Exception;
+    Long count(RvFlowCriteria rvFlowCriteria)throws Exception;
     String HEAD = "head";
     String MID = "mid";
     String TAIL = "tail";

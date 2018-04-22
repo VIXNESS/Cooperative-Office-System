@@ -4,17 +4,17 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class Application implements Serializable {
-    private String apPk;
+    protected String apPk;
 
-    private String apActor;
+    protected String apActor;
 
-    private String rvPk;
+    protected String rvPk;
 
-    private Date apDate;
+    protected Date apDate;
 
-    private String apComment;
+    protected String apComment;
 
-    private String ptr;
+    protected String ptr;
 
     private static final long serialVersionUID = 1L;
 

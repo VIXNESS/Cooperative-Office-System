@@ -19,83 +19,52 @@ import java.util.concurrent.Callable;
 
 @Controller
 @RequestMapping("app")
-@CrossOrigin(origins = "http://localhost:3000")
 public class ApplicationController {
+
     @Autowired
     private ApplicationService applicationService;
-
-    @Autowired
-    private StaffService staffService;
-
-    @Autowired
-    private OfficeService officeService;
-
-    @Autowired
-    private AtmTranService atmTranService;
 
     @Autowired
     private RvFlowService rvFlowService;
 
     @Autowired
-    private  StorageService storageService;
+    private StorageService storageService;
 
-    @GetMapping("pk")
+    @Autowired
+    private ApplicationViewService applicationViewService;
+
+    @GetMapping("getByPk")
     public @ResponseBody
-    Callable<Application> getApplicationByPk(String pk){
-        return () -> applicationService.getByPk(pk);
+    Callable<Application> getApplicationByPk(String appPk){
+        return () -> applicationService.getByPk(appPk);
     }
 
-    @GetMapping( "usr")
+    @GetMapping( "getByUsr")
     public @ResponseBody
-    Callable<List<Application>> getApplicationsByUser(String uid,int page,int row){
+    Callable<List<Application>> getApplicationsByUser(String apActor,int page,int row){
         return () -> {
             ApplicationCriteria applicationCriteria = new ApplicationCriteria();
             applicationCriteria.or()
-                    .andApActorEqualTo(uid);
+                    .andApActorEqualTo(apActor);
             return applicationService.get(applicationCriteria,page,row);
         };
     }
 
-    @RequestMapping(value = "rvw", method = RequestMethod.POST)
+    @GetMapping("getByViewer")
     public @ResponseBody
-    Callable<List<Application>> getApplicationByReviewer(HttpSession session, int page, int row){
-        String uid = (String) session.getAttribute("currentUser");
-        return () -> {
-            Staff staff = staffService.getByPk(uid);
-            OfficeCriteria officeCriteria = new OfficeCriteria();
-            officeCriteria.or()
-                    .andStaffEqualTo(staff.getId());
-            List<Office> officeList = officeService.get(officeCriteria);
-            List<AtmTran> atmTrans = new ArrayList<>();
-            for(Office o : officeList){
-                AtmTranCriteria atmTranCriteria = new AtmTranCriteria();
-                atmTranCriteria.or()
-                        .andRvDpEqualTo(o.getDepartment()).andRvPosiEqualTo(o.getPosi());
-                atmTrans.addAll(atmTranService.get(atmTranCriteria));
-            }
-            Set<RvFlow> rvFlowKeySet = Collections.synchronizedSet(new HashSet<>());
-            for(AtmTran a : atmTrans){
-                RvFlowCriteria rvFlowCriteria = new RvFlowCriteria();
-                rvFlowCriteria.or().andAtmEqualTo(a.getPk());
-                rvFlowKeySet.addAll(new HashSet<>(rvFlowService.get(rvFlowCriteria)));
-            }
-
-            List<Application> applicationList = new ArrayList<>();
-            for(RvFlow r : rvFlowKeySet){
-                ApplicationCriteria applicationCriteria = new ApplicationCriteria();
-                applicationCriteria.or().andPtrEqualTo(r.getPk());
-                applicationList.addAll(applicationService.get(applicationCriteria,page,row));
-            }
-            return applicationList;
-        };
+    Callable<List<ApplicationView>> getApplicationByReviewer(String reviewerPk){
+        return () -> applicationViewService.selectApplicationViewByViewerPk(reviewerPk);
     }
 
-    @RequestMapping(value = "add",method = RequestMethod.POST)
+    @PostMapping("add")
     public @ResponseBody
-    Callable<String> addApplication(String rv,String comment,HttpSession session)throws Exception{
+    Callable<String> addApplication(@RequestBody Map request){
         return () -> {
-            String uid = (String) session.getAttribute("currentUser");
-            String uniqueID = UUID.randomUUID().toString().substring(0,8);
+            String rv = (String) request.get("pk");
+            String comment = (String) request.get("comment");
+            String uid = (String) request.get("uid");
+
+            String uniqueID = UUID.randomUUID().toString();
             Application application = new Application();
             application.setApPk(uniqueID);
             application.setRvPk(rv);
@@ -113,10 +82,12 @@ public class ApplicationController {
         };
     }
 
-    @RequestMapping(value = "upc",method = RequestMethod.POST)
+    @PostMapping("updateComment")
     public @ResponseBody
-    Callable<String> updateComment(String ap,String comment)throws Exception{
+    Callable<String> updateComment(@RequestBody Map request){
         return () -> {
+            String ap = (String) request.get("appPk");
+            String comment = (String) request.get("comment");
             Application application = new Application();
             application.setApComment(comment);
             application.setApPk(ap);
@@ -124,9 +95,9 @@ public class ApplicationController {
         };
     }
 
-    @RequestMapping(value = "ups",method = RequestMethod.POST)
+    @PostMapping("updatePtr")
     public @ResponseBody
-    Callable<String> updateStat(String pk,String ptr)throws Exception{
+    Callable<String> updatePtr(String pk,String ptr){
         return () -> {
             Application application = new Application();
             application.setApPk(pk);
@@ -135,30 +106,26 @@ public class ApplicationController {
         };
     }
 
-    @RequestMapping(value = "addToFlow",method = RequestMethod.POST)
+    @PostMapping("addToFlow")
     public @ResponseBody
-    String addToRvFlow(String app) throws Exception {
-        //let the Arbitrator
-        Application application = applicationService.getByPk(app);
-        if(application == null || application.getPtr() != null)return "error";
-        RvFlowCriteria rvFlowCriteria = new RvFlowCriteria();
-        rvFlowCriteria.or().andObjEqualTo(application.getRvPk()).andPreIsNull();
-        RvFlow rvFlow = rvFlowService.get(rvFlowCriteria).get(0);
-        application.setPtr(rvFlow.getPk());
-        return Integer.toString(applicationService.update(application));
+    String addToRvFlow(@RequestBody Map request){
+        //TODO
+        return null;
 
     }
 
-    @RequestMapping(value = "del",method = RequestMethod.POST)
+    @PostMapping("del")
     public @ResponseBody
-    Callable<String> deleteApplication(String pk)throws Exception{
+    Callable<String> deleteApplication(@RequestBody Map request){
+        String pk = (String) request.get("pk");
         return () -> Integer.toString(applicationService.delete(pk));
     }
 
-    @RequestMapping(value = "pass",method = RequestMethod.POST)
+    @PostMapping(value = "nextPtr")
     public @ResponseBody
-    String passApp(String apk) throws Exception {
-        Application application = applicationService.getByPk(apk);
+    String passApp(@RequestBody Map request) throws Exception {
+        String apPk = (String) request.get("apPk");
+        Application application = applicationService.getByPk(apPk);
         if(application == null) return "null_app";
         if(application.getPtr() == null || application.getPtr().equals("")) return "null_ptr";
         if(application.getRvPk() == null || application.getRvPk().equals("")) return "null_obj";
