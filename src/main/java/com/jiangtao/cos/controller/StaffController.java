@@ -29,12 +29,10 @@ public class StaffController {
     @Autowired
     private PositionService positionService;
 
-    @RequestMapping(value = "staffInfo",method = RequestMethod.POST)
+    @GetMapping(value = "staffInfo")
     public @ResponseBody
-    List<Staff> getStaff() throws Exception {
-        StaffCriteria staffCriteria = new StaffCriteria();
-        staffCriteria.or().andBirthdayIsNotNull();
-        return staffService.get(staffCriteria,1,1);
+    Callable<Staff> getStaff(String uid) throws Exception {
+        return () -> staffService.getByPk(uid);
     }
 
     @RequestMapping(value = "login",method = RequestMethod.POST)

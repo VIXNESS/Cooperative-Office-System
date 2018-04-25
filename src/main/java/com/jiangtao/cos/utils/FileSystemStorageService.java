@@ -29,7 +29,12 @@ public class FileSystemStorageService implements StorageService {
 
     @Override
     public void store(MultipartFile file) {
-        String filename = StringUtils.cleanPath(file.getOriginalFilename());
+        store(file,"");
+    }
+
+    @Override
+    public void store(MultipartFile file, String info) {
+        String filename = info + StringUtils.cleanPath(file.getOriginalFilename());
         try {
             if (file.isEmpty()) {
                 throw new StorageException("Failed to store empty file " + filename);
@@ -88,7 +93,6 @@ public class FileSystemStorageService implements StorageService {
             else {
                 throw new StorageFileNotFoundException(
                         "Could not read file: " + filename);
-
             }
         }
         catch (MalformedURLException e) {

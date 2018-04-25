@@ -8,7 +8,7 @@ import java.util.List;
 @Mapper
 @Repository
 public interface ApplicationViewMapper {
-    final String getApplicationByViewerPk = "SELECT a.*,office.staff FROM application a INNER JOIN rv_flow flow on a.ptr = flow.pk INNER JOIN atm_tran tran on flow.atm = tran.pk INNER JOIN office office on office.department = tran.rv_dp and office.posi = tran.rv_posi WHERE office.staff =  #{viewerPk};";
+    String getApplicationByViewerPk = "SELECT a.*,office.staff FROM application a INNER JOIN rv_flow flow on a.ptr = flow.pk INNER JOIN atm_tran tran on flow.atm = tran.pk INNER JOIN office office on office.department = tran.rv_dp and office.posi = tran.rv_posi WHERE office.staff =  #{viewerPk};";
 
     @Select(getApplicationByViewerPk)
     @Results(value = {

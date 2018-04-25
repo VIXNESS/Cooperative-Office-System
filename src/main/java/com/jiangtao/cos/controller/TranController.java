@@ -4,15 +4,11 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.jiangtao.cos.pojo.*;
 import com.jiangtao.cos.service.*;
-import com.jiangtao.cos.utils.StorageService;
-import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +36,7 @@ public class TranController {
     private PositionService positionService;
 
     @Autowired
-    private StorageService storageService;
+    private AppTemplateService appTemplateService;
 
     private final String ASSETS = "D:\\Users\\Vix20\\IdeaProjects\\cos\\assets\\";
     //审批对象部分
@@ -164,7 +160,7 @@ public class TranController {
     String updateRvFLow(@RequestBody Map request){
          String atmPk = (String) request.get("atm");
          String rvPk = (String) request.get("rv");
-         RvFlow rvFlow = rvFlowService.getByPk(rvPk);;
+         RvFlow rvFlow = rvFlowService.getByPk(rvPk);
          rvFlow.setAtm(atmPk);
          return Integer.toString(rvFlowService.update(rvFlow));
     }
@@ -260,7 +256,6 @@ public class TranController {
                RvFlowCriteria rvFlowCriteria = new RvFlowCriteria();
                rvFlowCriteria.or().andObjEqualTo(rvObject.getObjPk());
                List<RvFlow> rvFlowList = rvFlowService.get(rvFlowCriteria);// get rvFlowList(unserializable,it's a block of flowViews) from a RvObject.
-
                rvFlowViewsList.add(makeRvFlowViewList(rvFlowList));// make rvFlowList into rvFlowViewList.
            }
            return rvFlowViewsList;//let frontend to serialize flowViewLists
@@ -287,7 +282,30 @@ public class TranController {
         };
     }
 
+    @GetMapping("flowListByFirstNode")
+    public @ResponseBody
+    Callable<List<RvFlowView>> getFlowListByFirstNode(String firstNode){
+        return () -> {
+            List<RvFlow> rvFlowList = new ArrayList<>();
+            RvFlow current =  rvFlowService.getByPk(firstNode);
+            rvFlowList.add(current);
+            while(current.getSuc() != null){
+                current = rvFlowService.getByPk(current.getSuc());
+                rvFlowList.add(current);
+            };
+            return makeRvFlowViewList(rvFlowList);
+        };
+    }
 
+    @GetMapping("isLastStep")
+    public @ResponseBody
+    Callable<String> isLastStep(String ptr){
+        return () -> {
+            RvFlow rvFlow = rvFlowService.getByPk(ptr);
+            if(rvFlow.getSuc() == null) return "true";
+            else return "false";
+        };
+    }
     //原子事物部分
 
     @GetMapping(value = "getAtms")
@@ -396,8 +414,17 @@ public class TranController {
     String addTemplate(@RequestBody Map request){
         String objPk = (String) request.get("pk");
         String jsonStr = (String) request.get("data");
-        InputStream stream = new ByteArrayInputStream(jsonStr.getBytes(StandardCharsets.UTF_8));
-        storageService.inputStreamStore(stream,objPk + ".json");
+        AppTemplate appTemplate = appTemplateService.selectByPk(objPk);
+        if(appTemplate != null){
+            appTemplate.setTemplate(jsonStr);
+            appTemplateService.update(appTemplate);
+        }else {
+            appTemplate = new AppTemplate();
+            appTemplate.setPk(UUID.randomUUID().toString().substring(0,8));
+            appTemplate.setObjpk(objPk);
+            appTemplate.setTemplate(jsonStr);
+            appTemplateService.insert(appTemplate);
+        }
         return "success";
     }
 
@@ -405,18 +432,41 @@ public class TranController {
     public @ResponseBody
     Callable<String> getTemplateByObj(String obj){
         return () -> {
-            Resource file;
+            String rs = "null";
             try{
-                file = storageService.loadAsResource(obj + ".json");
+                rs = appTemplateService.selectByObjPk(obj).getTemplate();
             }catch (Exception e){
                 e.printStackTrace();
-                return "null";
             }
+            return rs;
+        };
+    }
 
-            StringWriter writer = new StringWriter();
-            IOUtils.copy(file.getInputStream(), writer, "UTF-8");
-            String json = writer.toString();
-            return json;
+    @GetMapping("getTepByPk")
+    public @ResponseBody
+    Callable<String> getTemplateByPk(String pk){
+        return () -> {
+            String rs = "null";
+            try{
+                rs = appTemplateService.selectByPk(pk).getTemplate();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return rs;
+        };
+    }
+
+    @GetMapping("getTepPk")
+    public @ResponseBody
+    Callable<String> getTepPk(String obj){
+        return () -> {
+            String rs = "null";
+            try{
+                rs = appTemplateService.selectByObjPk(obj).getPk();
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            return rs;
         };
     }
 
@@ -424,34 +474,18 @@ public class TranController {
     public @ResponseBody
     Callable<List<TemplateView>> getTemplateList(){
         return () -> {
-            RvObjectCriteria rvObjectCriteria = new RvObjectCriteria();
-            rvObjectCriteria.or().andObjPkIsNotNull();
-            List<RvObject> rvObjectList = rvObjectService.get(rvObjectCriteria);
-
             List<TemplateView> templateViewList = new ArrayList<>();
-            InputStreamReader inputStreamReader;
-            StringBuffer stringBuffer;
+            List<AppTemplate> appTemplateList = appTemplateService.selectAll();
             TemplateView templateView;
-            Resource resource;
-            for(RvObject rvObject : rvObjectList){
-                templateView = new TemplateView();
-                templateView.setObjPk(rvObject.getObjPk());
-                templateView.setObjName(rvObject.getObjName());
-                try {
-                    resource = storageService.loadAsResource(rvObject.getObjPk() + ".json");
-                    inputStreamReader = new InputStreamReader(resource.getInputStream());
-                    stringBuffer = new StringBuffer();
-                    while(inputStreamReader.ready()){
-                        stringBuffer.append((char)inputStreamReader.read());
-                    }
-                    inputStreamReader.close();
-                    templateView.setData(stringBuffer.toString());
-
-                }catch (Exception e){
-                    templateView.setData("[]");
+            for(AppTemplate template : appTemplateList){
+                if(template.getObjpk() != null){
+                    templateView = new TemplateView();
+                    templateView.setPk(template.getPk());
+                    templateView.setData(template.getTemplate());
+                    templateView.setObjPk(template.getObjpk());
+                    templateView.setObjName(rvObjectService.getByPk(template.getObjpk()).getObjName());
+                    templateViewList.add(templateView);
                 }
-
-                templateViewList.add(templateView);
             }
             return templateViewList;
         };
@@ -460,16 +494,8 @@ public class TranController {
     @PostMapping("delTps")
     public @ResponseBody
     String deleteTemplateByObjPk(@RequestBody Map request){
-        String objPk = (String) request.get("pk");
-        try{
-            Resource resource = storageService.loadAsResource(objPk + ".json");
-            if(resource.exists()){
-                resource.getFile().delete();
-            }
-        }catch (Exception e){
-            e.printStackTrace();
-            return "error";
-        }
+        String pk = (String) request.get("pk");
+        appTemplateService.delete(pk);
         return "success";
     }
 

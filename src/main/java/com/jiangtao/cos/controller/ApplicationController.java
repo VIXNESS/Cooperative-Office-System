@@ -44,9 +44,12 @@ public class ApplicationController {
     Callable<List<Application>> getApplicationsByUser(String apActor,int page,int row){
         return () -> {
             ApplicationCriteria applicationCriteria = new ApplicationCriteria();
-            applicationCriteria.or()
-                    .andApActorEqualTo(apActor);
-            return applicationService.get(applicationCriteria,page,row);
+            applicationCriteria.or().andApActorEqualTo(apActor);
+            if(row == 0){
+                return applicationService.get(applicationCriteria);
+            }else {
+                return applicationService.get(applicationCriteria,page,row);
+            }
         };
     }
 
@@ -56,13 +59,35 @@ public class ApplicationController {
         return () -> applicationViewService.selectApplicationViewByViewerPk(reviewerPk);
     }
 
-    @PostMapping("add")
+    @PostMapping("addToFlow")
     public @ResponseBody
-    Callable<String> addApplication(@RequestBody Map request){
-        return () -> {
-            String rv = (String) request.get("pk");
+    ResponseEntity<?> addToRvFlow(@RequestBody Map request){
+        String ptr = (String) request.get("ptr");
+        String comment = (String) request.get("comment");
+        String rvPk = (String) request.get("rvPk");
+        String actor = (String) request.get("actor");
+        String pk = UUID.randomUUID().toString();
+        try{
+            Application application = new Application();
+            application.setApPk(pk);
+            application.setPtr(ptr);
+            application.setApComment(comment);
+            application.setRvPk(rvPk);
+            application.setApActor(actor);
+            application.setApDate(new Date());
+            applicationService.insert(application);
+        }catch (Exception e){
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok().build();
+
+    }
+    @PostMapping("addAsDraft")
+    public @ResponseBody
+    ResponseEntity<?> addApplication(@RequestBody Map request){
+            String rv = (String) request.get("rvPk");
             String comment = (String) request.get("comment");
-            String uid = (String) request.get("uid");
+            String uid = (String) request.get("actor");
 
             String uniqueID = UUID.randomUUID().toString();
             Application application = new Application();
@@ -76,43 +101,48 @@ public class ApplicationController {
                 applicationService.insert(application);
             } catch (Exception e) {
                 e.printStackTrace();
-                return "false";
+                return ResponseEntity.badRequest().build();
             }
-            return "true";
-        };
+        return ResponseEntity.ok().build();
+
     }
 
     @PostMapping("updateComment")
     public @ResponseBody
-    Callable<String> updateComment(@RequestBody Map request){
-        return () -> {
-            String ap = (String) request.get("appPk");
-            String comment = (String) request.get("comment");
-            Application application = new Application();
-            application.setApComment(comment);
-            application.setApPk(ap);
-            return Integer.toString(applicationService.update(application));
-        };
+    String updateComment(@RequestBody Map request) throws Exception {
+        String ap = (String) request.get("appPk");
+        String comment = (String) request.get("comment");
+        Application application = applicationService.getByPk(ap);
+        application.setApComment(comment);
+        return Integer.toString(applicationService.update(application));
     }
 
     @PostMapping("updatePtr")
     public @ResponseBody
-    Callable<String> updatePtr(String pk,String ptr){
-        return () -> {
-            Application application = new Application();
-            application.setApPk(pk);
-            application.setPtr(ptr);
-            return Integer.toString(applicationService.update(application));
-        };
+    String updatePtr(String pk,String ptr) throws Exception {
+        Application application = applicationService.getByPk(pk);
+        application.setApPk(pk);
+        application.setPtr(ptr);
+        return Integer.toString(applicationService.update(application));
     }
 
-    @PostMapping("addToFlow")
+    @PostMapping("toDraft")
     public @ResponseBody
-    String addToRvFlow(@RequestBody Map request){
-        //TODO
-        return null;
-
+    ResponseEntity<?> toDraft(@RequestBody Map request){
+        String apPk = (String) request.get("apPk");
+        String apCommnet = (String) request.get("apCommnet");
+        try{
+            Application application = applicationService.getByPk(apPk);
+            application.setPtr(null);
+            application.setApComment(apCommnet);
+            applicationService.update(application);
+        }catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok().build();
     }
+
 
     @PostMapping("del")
     public @ResponseBody
@@ -121,18 +151,38 @@ public class ApplicationController {
         return () -> Integer.toString(applicationService.delete(pk));
     }
 
-    @PostMapping(value = "nextPtr")
+    @PostMapping(value = "pass")
     public @ResponseBody
-    String passApp(@RequestBody Map request) throws Exception {
+    ResponseEntity<?> passApp(@RequestBody Map request){
         String apPk = (String) request.get("apPk");
-        Application application = applicationService.getByPk(apPk);
-        if(application == null) return "null_app";
-        if(application.getPtr() == null || application.getPtr().equals("")) return "null_ptr";
-        if(application.getRvPk() == null || application.getRvPk().equals("")) return "null_obj";
-        RvFlow rvFlow = rvFlowService.getByPk(application.getPtr());
-        if(rvFlow.getSuc() == null || rvFlow.getSuc().equals("")) return "finished";
-        application.setPtr(rvFlow.getSuc());
-        return Integer.toString(applicationService.update(application));
+        String comment = (String) request.get("comment");
+        try{
+            Application application = applicationService.getByPk(apPk);
+            RvFlow rvFlow = rvFlowService.getByPk(application.getPtr());
+            application.setPtr(rvFlow.getSuc());
+            application.setApComment(comment);
+            applicationService.update(application);
+        }catch (Exception e){
+            return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.ok().build();
+    }
+    @PostMapping(value = "reject")
+    public @ResponseBody
+    ResponseEntity<?> rejectApp(@RequestBody Map request){
+        String apPk = (String) request.get("apPk");
+        String comment = (String) request.get("comment");
+        try{
+            Application application = applicationService.getByPk(apPk);
+            application.setPtr(null);
+            application.setApComment(comment);
+            applicationService.update(application);
+        }catch (Exception e){
+            return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.ok().build();
     }
 
 
@@ -146,9 +196,9 @@ public class ApplicationController {
 
     @PostMapping("/filesUpload")
     @ResponseBody
-    public ResponseEntity<?> handleFileUpload(@RequestParam("file") MultipartFile file) {
-        storageService.store(file);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public String handleFileUpload(@RequestParam("file") MultipartFile file,String info) {
+        storageService.store(file,info);
+        return info + file.getName();
     }
 
     @ExceptionHandler(StorageFileNotFoundException.class)

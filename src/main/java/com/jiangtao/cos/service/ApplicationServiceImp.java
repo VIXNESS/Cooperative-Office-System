@@ -26,12 +26,12 @@ public class ApplicationServiceImp implements ApplicationService {
     }
 
     @Override
-    public Application getByPk(String pk) throws Exception {
+    public Application getByPk(String pk) {
         return applicationMapper.selectByPrimaryKey(pk);
     }
 
     @Override
-    public int insert(Application application) throws Exception {
+    public int insert(Application application)  {
         return applicationMapper.insert(application);
     }
 
@@ -46,8 +46,8 @@ public class ApplicationServiceImp implements ApplicationService {
     }
 
     @Override
-    public int update(Application application) throws Exception {
-        return applicationMapper.updateByPrimaryKeySelective(application);
+    public int update(Application application){
+        return applicationMapper.updateByPrimaryKey(application);
     }
 
 }
