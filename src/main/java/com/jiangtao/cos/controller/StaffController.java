@@ -15,7 +15,6 @@ import java.util.concurrent.Callable;
 
 @RestController
 @RequestMapping("staff")
-//@CrossOrigin(origins = "http://localhost:3000")
 public class StaffController {
     private final StaffService staffService;
 
