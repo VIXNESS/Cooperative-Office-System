@@ -2,51 +2,44 @@ package com.jiangtao.cos.controller;
 
 import com.jiangtao.cos.pojo.Log;
 import com.jiangtao.cos.pojo.LogCriteria;
+import com.jiangtao.cos.pojo.LogView;
 import com.jiangtao.cos.service.LogService;
+import com.jiangtao.cos.service.LogViewService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpSession;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.concurrent.Callable;
 
 @Controller
-@RequestMapping("log")
-//@CrossOrigin(origins = "http://localhost:3000")
+@RequestMapping("logger")
 public class LogController {
+    private final LogService logService;
+    private final LogViewService logViewService;
+
     @Autowired
-    private LogService logService;
-    public Callable<List<Log>> getLogsByStaff(HttpSession httpSession, int page, int row){
-        String uid = (String) httpSession.getAttribute("currentUser");
-        if(uid == null || uid.equals("")) return null;
-        LogCriteria logCriteria = new LogCriteria();
-        logCriteria.or().andStaffIdEqualTo(uid);
-        return () -> logService.get(logCriteria,page,row);
+    public LogController(LogService logService, LogViewService logViewService) {
+        this.logService = logService;
+        this.logViewService = logViewService;
     }
 
-    public Callable<List<Log>> getLogsByDate(String date, int page, int row) throws ParseException {
-        LogCriteria logCriteria = new LogCriteria();
-        logCriteria.or().andLogDateEqualTo(new SimpleDateFormat("yyyy-mm-dd").parse(date));
-        return () -> logService.get(logCriteria,page,row);
-    }
-
-    public Callable<List<Log>> getLogsByCategory(int category,int page,int row){
+    @GetMapping("getLogByUser")
+    @ResponseBody
+    public Callable<List<Log>> getLogsByStaff(String uid) throws Exception {
         return () -> {
             LogCriteria logCriteria = new LogCriteria();
-            logCriteria.or().andCategoryEqualTo((byte)category);
-            return logService.get(logCriteria,page,row);
+            logCriteria.or().andStaffIdEqualTo(uid);
+            List<Log> logList =  logService.get(logCriteria);
+            return logList;
         };
     }
 
-    public Callable<List<Log>> getLogsByTargetTable(String tb,int page,int row){
-        return () -> {
-            LogCriteria logCriteria = new LogCriteria();
-            logCriteria.or().andTgTableEqualTo(tb);
-            return logService.get(logCriteria,page,row);
-        };
+    @GetMapping("reviewed")
+    @ResponseBody
+    public Callable<List<LogView>> getLogReviewedLogs(String uid){
+        return () -> logViewService.selectByStaffId(uid);
     }
 }

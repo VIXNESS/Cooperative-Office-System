@@ -14,11 +14,12 @@ import java.util.List;
 @Service
 public class RvObjectServiceImp implements RvObjectService {
 
-    @Autowired
-    RvObjectMapper rvObjectMapper;
+    private final RvObjectMapper rvObjectMapper;
 
     @Autowired
-    RvFlowMapper rvFlowMapper;
+    public RvObjectServiceImp(RvObjectMapper rvObjectMapper) {
+        this.rvObjectMapper = rvObjectMapper;
+    }
 
     @Override
     public List<RvObject> get(RvObjectCriteria rvObjectCriteria) throws Exception {

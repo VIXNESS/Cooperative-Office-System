@@ -12,7 +12,7 @@ import java.util.List;
 @Service
 public class DepartmentServiceImp implements DepartmentService {
     @Autowired
-    DepartmentMapper departmentMapper;
+    private DepartmentMapper departmentMapper;
     @Override
     public List<Department> get(DepartmentCriteria departmentCriteria) throws Exception {
         return departmentMapper.selectByExample(departmentCriteria);

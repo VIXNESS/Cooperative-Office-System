@@ -1,6 +1,7 @@
 package com.jiangtao.cos.pojo;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class Log extends LogKey implements Serializable {
     private String content;
@@ -10,6 +11,21 @@ public class Log extends LogKey implements Serializable {
     private Byte category;
 
     private static final long serialVersionUID = 1L;
+
+    public Log(){
+//        super();
+    }
+
+    public Log(String staffId, Date logDate) {
+        super(staffId, logDate);
+    }
+
+    public Log(String staffId, Date logDate, String content, String tgTable, Byte category) {
+        super(staffId, logDate);
+        this.content = content;
+        this.tgTable = tgTable;
+        this.category = category;
+    }
 
     public String getContent() {
         return content;

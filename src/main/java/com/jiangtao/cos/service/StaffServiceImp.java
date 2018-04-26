@@ -13,7 +13,7 @@ import java.util.List;
 public class StaffServiceImp implements StaffService {
 
     @Autowired
-    StaffMapper staffMapper;
+    private StaffMapper staffMapper;
 
     @Override
     public List<Staff> get(StaffCriteria staffCriteria) throws Exception {

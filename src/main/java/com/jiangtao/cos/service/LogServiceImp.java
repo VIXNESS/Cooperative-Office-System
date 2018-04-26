@@ -12,8 +12,12 @@ import java.util.List;
 
 @Service
 public class LogServiceImp implements LogService {
+    private final LogMapper logMapper;
+
     @Autowired
-    LogMapper logMapper;
+    public LogServiceImp(LogMapper logMapper) {
+        this.logMapper = logMapper;
+    }
 
     @Override
     public List<Log> get(LogCriteria logCriteria) throws Exception {

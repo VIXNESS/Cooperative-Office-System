@@ -17,22 +17,43 @@ import java.util.concurrent.Callable;
 @RequestMapping("staff")
 //@CrossOrigin(origins = "http://localhost:3000")
 public class StaffController {
-    @Autowired
-    private StaffService staffService;
+    private final StaffService staffService;
+
+    private final OfficeService officeService;
+
+    private final DepartmentService departmentService;
+
+    private final PositionService positionService;
 
     @Autowired
-    private OfficeService officeService;
-
-    @Autowired
-    private DepartmentService departmentService;
-
-    @Autowired
-    private PositionService positionService;
+    public StaffController(StaffService staffService, OfficeService officeService, DepartmentService departmentService, PositionService positionService) {
+        this.staffService = staffService;
+        this.officeService = officeService;
+        this.departmentService = departmentService;
+        this.positionService = positionService;
+    }
 
     @GetMapping(value = "staffInfo")
     public @ResponseBody
     Callable<Staff> getStaff(String uid) throws Exception {
         return () -> staffService.getByPk(uid);
+    }
+
+    @GetMapping(value = "permission")
+    public @ResponseBody
+    Callable<String> checkPermission(String uid) throws Exception {
+        return () -> {
+          OfficeCriteria officeCriteria = new OfficeCriteria();
+          officeCriteria.or().andStaffEqualTo(uid);
+          List<Office> officeList = officeService.get(officeCriteria);
+          String flag = "false";
+          for(Office office : officeList){
+           if(departmentService.getByPk(office.getDepartment()).getPrior() == 1){
+               flag = "true";
+           }
+          }
+          return flag;
+        };
     }
 
     @RequestMapping(value = "login",method = RequestMethod.POST)

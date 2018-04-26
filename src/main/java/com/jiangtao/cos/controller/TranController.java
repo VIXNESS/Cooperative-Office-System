@@ -20,25 +20,28 @@ import java.util.concurrent.Callable;
 //@CrossOrigin(origins = "http://localhost:3000")
 public class TranController {
 
-    @Autowired
-    private RvFlowService rvFlowService;
+    private final RvFlowService rvFlowService;
+
+    private final RvObjectService rvObjectService;
+
+    private final AtmTranService atmTranService;
+
+    private final DepartmentService departmentService;
+
+    private final PositionService positionService;
+
+    private final AppTemplateService appTemplateService;
 
     @Autowired
-    private RvObjectService rvObjectService;
+    public TranController(RvFlowService rvFlowService, RvObjectService rvObjectService, AtmTranService atmTranService, DepartmentService departmentService, PositionService positionService, AppTemplateService appTemplateService) {
+        this.rvFlowService = rvFlowService;
+        this.rvObjectService = rvObjectService;
+        this.atmTranService = atmTranService;
+        this.departmentService = departmentService;
+        this.positionService = positionService;
+        this.appTemplateService = appTemplateService;
+    }
 
-    @Autowired
-    private AtmTranService atmTranService;
-
-    @Autowired
-    private DepartmentService departmentService;
-
-    @Autowired
-    private PositionService positionService;
-
-    @Autowired
-    private AppTemplateService appTemplateService;
-
-    private final String ASSETS = "D:\\Users\\Vix20\\IdeaProjects\\cos\\assets\\";
     //审批对象部分
 
     @PostMapping("addObj")
@@ -74,10 +77,6 @@ public class TranController {
         RvFlowCriteria rvFlowCriteria = new RvFlowCriteria();
         rvFlowCriteria.or().andObjEqualTo(id);
         rvFlowService.delete(rvFlowCriteria);
-        File file = new File(ASSETS + id + ".json");
-        if(file.exists()){
-            file.delete();
-        }
         return Integer.toString(rvObjectService.delete(id));
     }
 
@@ -458,7 +457,7 @@ public class TranController {
 
     @GetMapping("getTepPk")
     public @ResponseBody
-    Callable<String> getTepPk(String obj){
+    Callable<String> getTepByObjPk(String obj){
         return () -> {
             String rs = "null";
             try{

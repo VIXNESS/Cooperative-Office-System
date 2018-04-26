@@ -11,8 +11,13 @@ import java.util.List;
 
 @Service
 public class AtmTranServiceImp implements AtmTranService {
+    private final AtmTranMapper atmTranMapper;
+
     @Autowired
-    AtmTranMapper atmTranMapper;
+    public AtmTranServiceImp(AtmTranMapper atmTranMapper) {
+        this.atmTranMapper = atmTranMapper;
+    }
+
     @Override
     public List<AtmTran> get(AtmTranCriteria atmTranCriteria) throws Exception {
         return atmTranMapper.selectByExample(atmTranCriteria);

@@ -12,8 +12,13 @@ import java.util.List;
 
 @Service
 public class OfficeServiceImp implements OfficeService {
+    private final OfficeMapper officeMapper;
+
     @Autowired
-    OfficeMapper officeMapper;
+    public OfficeServiceImp(OfficeMapper officeMapper) {
+        this.officeMapper = officeMapper;
+    }
+
     @Override
     public List<Office> get(OfficeCriteria officeCriteria) throws Exception {
         return officeMapper.selectByExample(officeCriteria);

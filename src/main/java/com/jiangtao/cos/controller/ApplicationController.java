@@ -21,17 +21,24 @@ import java.util.concurrent.Callable;
 @RequestMapping("app")
 public class ApplicationController {
 
-    @Autowired
-    private ApplicationService applicationService;
+    private final ApplicationService applicationService;
+
+    private final RvFlowService rvFlowService;
+
+    private final StorageService storageService;
+
+    private final ApplicationViewService applicationViewService;
+
+    private final LogService logService;
 
     @Autowired
-    private RvFlowService rvFlowService;
-
-    @Autowired
-    private StorageService storageService;
-
-    @Autowired
-    private ApplicationViewService applicationViewService;
+    public ApplicationController(ApplicationService applicationService, RvFlowService rvFlowService, StorageService storageService, ApplicationViewService applicationViewService, LogService logService) {
+        this.applicationService = applicationService;
+        this.rvFlowService = rvFlowService;
+        this.storageService = storageService;
+        this.applicationViewService = applicationViewService;
+        this.logService = logService;
+    }
 
     @GetMapping("getByPk")
     public @ResponseBody
@@ -76,12 +83,39 @@ public class ApplicationController {
             application.setApActor(actor);
             application.setApDate(new Date());
             applicationService.insert(application);
+
+            Log log = new Log(actor,new Date(),pk,LogInf.APPLICATION,LogInf.SUBMIT);
+            logService.insert(log);
         }catch (Exception e){
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().build();
 
     }
+
+    @PostMapping("draftToFlow")
+    public @ResponseBody
+    ResponseEntity<?> draftToFlow(@RequestBody Map request){
+        String pk = (String) request.get("pk");
+        String comment = (String) request.get("comment");
+        String ptr = (String) request.get("ptr");
+
+        try {
+            Application application =  applicationService.getByPk(pk);
+            application.setApComment(comment);
+            application.setPtr(ptr);
+            application.setApDate(new Date());
+            applicationService.update(application);
+
+            Log log = new Log(application.getApActor(),new Date(),pk,LogInf.APPLICATION,LogInf.SUBMIT);
+            logService.insert(log);
+        }catch (Exception e){
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("addAsDraft")
     public @ResponseBody
     ResponseEntity<?> addApplication(@RequestBody Map request){
@@ -99,6 +133,8 @@ public class ApplicationController {
             application.setPtr("");
             try {
                 applicationService.insert(application);
+                Log log = new Log(uid,new Date(),uniqueID,LogInf.APPLICATION,LogInf.SUBMIT);
+                logService.insert(log);
             } catch (Exception e) {
                 e.printStackTrace();
                 return ResponseEntity.badRequest().build();
@@ -114,6 +150,8 @@ public class ApplicationController {
         String comment = (String) request.get("comment");
         Application application = applicationService.getByPk(ap);
         application.setApComment(comment);
+        Log log = new Log(application.getApActor(),new Date(),ap,LogInf.APPLICATION,LogInf.UPDATE);
+        logService.insert(log);
         return Integer.toString(applicationService.update(application));
     }
 
@@ -123,6 +161,8 @@ public class ApplicationController {
         Application application = applicationService.getByPk(pk);
         application.setApPk(pk);
         application.setPtr(ptr);
+        Log log = new Log(application.getApActor(),new Date(),pk,LogInf.APPLICATION,LogInf.UPDATE);
+        logService.insert(log);
         return Integer.toString(applicationService.update(application));
     }
 
@@ -143,11 +183,12 @@ public class ApplicationController {
         return ResponseEntity.ok().build();
     }
 
-
     @PostMapping("del")
     public @ResponseBody
-    Callable<String> deleteApplication(@RequestBody Map request){
+    Callable<String> deleteApplication(@RequestBody Map request) throws Exception {
         String pk = (String) request.get("pk");
+        Log log = new Log(applicationService.getByPk(pk).getApActor(),new Date(), pk,LogInf.APPLICATION,LogInf.DELETE);
+        logService.insert(log);
         return () -> Integer.toString(applicationService.delete(pk));
     }
 
@@ -156,28 +197,35 @@ public class ApplicationController {
     ResponseEntity<?> passApp(@RequestBody Map request){
         String apPk = (String) request.get("apPk");
         String comment = (String) request.get("comment");
+        String viewer = (String) request.get("viewer");
         try{
             Application application = applicationService.getByPk(apPk);
             RvFlow rvFlow = rvFlowService.getByPk(application.getPtr());
             application.setPtr(rvFlow.getSuc());
             application.setApComment(comment);
             applicationService.update(application);
+            Log log = new Log(viewer,new Date(), apPk,LogInf.APPLICATION,LogInf.PASS);
+            logService.insert(log);
         }catch (Exception e){
             return ResponseEntity.badRequest().build();
         }
 
         return ResponseEntity.ok().build();
     }
+
     @PostMapping(value = "reject")
     public @ResponseBody
     ResponseEntity<?> rejectApp(@RequestBody Map request){
         String apPk = (String) request.get("apPk");
         String comment = (String) request.get("comment");
+        String viewer = (String) request.get("viewer");
         try{
             Application application = applicationService.getByPk(apPk);
             application.setPtr(null);
             application.setApComment(comment);
             applicationService.update(application);
+            Log log = new Log(viewer,new Date(),apPk,LogInf.APPLICATION,LogInf.REJECT);
+            logService.insert(log);
         }catch (Exception e){
             return ResponseEntity.badRequest().build();
         }
@@ -185,14 +233,15 @@ public class ApplicationController {
         return ResponseEntity.ok().build();
     }
 
-
     @GetMapping("files/{filename:.+}")
     @ResponseBody
     public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
         Resource file = storageService.loadAsResource(filename);
-        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
+        ResponseEntity<Resource> rs =  ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION,
                 "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+        return rs;
     }
+
 
     @PostMapping("/filesUpload")
     @ResponseBody

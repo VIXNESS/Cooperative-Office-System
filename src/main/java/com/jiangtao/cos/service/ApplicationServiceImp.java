@@ -11,8 +11,12 @@ import java.util.List;
 
 @Service
 public class ApplicationServiceImp implements ApplicationService {
+    private final ApplicationMapper applicationMapper;
+
     @Autowired
-    ApplicationMapper applicationMapper;
+    public ApplicationServiceImp(ApplicationMapper applicationMapper) {
+        this.applicationMapper = applicationMapper;
+    }
 
     @Override
     public List<Application> get(ApplicationCriteria applicationCriteria) throws Exception {

@@ -9,8 +9,13 @@ import java.util.List;
 
 @Service
 public class ApplicationViewServiceImp implements ApplicationViewService {
+    private final ApplicationViewMapper applicationViewMapper;
+
     @Autowired
-    private ApplicationViewMapper applicationViewMapper;
+    public ApplicationViewServiceImp(ApplicationViewMapper applicationViewMapper) {
+        this.applicationViewMapper = applicationViewMapper;
+    }
+
     @Override
     public List<ApplicationView> selectApplicationViewByViewerPk(String viewerPk) {
         return applicationViewMapper.selectByViewerPk(viewerPk);

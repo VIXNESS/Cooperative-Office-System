@@ -11,8 +11,13 @@ import java.util.List;
 
 @Service
 public class PositionServiceImp implements PositionService {
+    private final PositionMapper positionMapper;
+
     @Autowired
-    PositionMapper positionMapper;
+    public PositionServiceImp(PositionMapper positionMapper) {
+        this.positionMapper = positionMapper;
+    }
+
     @Override
     public List<Position> get(PositionCriteria positionCriteria) {
         return positionMapper.selectByExample(positionCriteria);

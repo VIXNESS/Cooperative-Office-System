@@ -12,8 +12,12 @@ import java.util.List;
 
 @Service
 public class RvFlowServiceImp implements RvFlowService {
+    private final RvFlowMapper rvFlowMapper;
+
     @Autowired
-    RvFlowMapper rvFlowMapper;
+    public RvFlowServiceImp(RvFlowMapper rvFlowMapper) {
+        this.rvFlowMapper = rvFlowMapper;
+    }
 
     @Override
     public List<RvFlow> get(RvFlowCriteria rvFlowCriteria) throws Exception {

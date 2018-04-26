@@ -10,8 +10,12 @@ import java.util.List;
 @Service
 public class AppTemplateServiceImp implements AppTemplateService {
 
+    private final AppTemplateMapper appTemplateMapper;
+
     @Autowired
-    AppTemplateMapper appTemplateMapper;
+    public AppTemplateServiceImp(AppTemplateMapper appTemplateMapper) {
+        this.appTemplateMapper = appTemplateMapper;
+    }
 
     @Override
     public AppTemplate selectByObjPk(String objpk) {

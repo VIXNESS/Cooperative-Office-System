@@ -4,9 +4,17 @@ import java.io.Serializable;
 import java.util.Date;
 
 public class LogKey implements Serializable {
-    private String staffId;
+    protected String staffId;
 
-    private Date logDate;
+    protected Date logDate;
+
+    public LogKey() {
+    }
+
+    public LogKey(String staffId, Date logDate) {
+        this.staffId = staffId;
+        this.logDate = logDate;
+    }
 
     private static final long serialVersionUID = 1L;
 
